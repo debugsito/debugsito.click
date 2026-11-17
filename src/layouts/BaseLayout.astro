@@ -10,12 +10,14 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import TerminalEgg from '../components/TerminalEgg.astro';
 import Arcade from '../components/Arcade.astro';
+import OpenPreview from '../components/OpenPreview.astro';
 
 interface Props {
   title: string;
   description?: string;
   ogImage?: string;
   canonicalPath?: string;
+  lang?: 'es' | 'en';
 }
 
 const {
@@ -23,15 +25,19 @@ const {
   description = 'debugsito — homebase DevOps. Open source, pipelines y lo que corre en producción.',
   ogImage = '/og.png',
   canonicalPath = Astro.url.pathname,
+  lang = 'es',
 } = Astro.props;
 
 const site = 'https://debugsito.click';
 const canonical = new URL(canonicalPath, site).href;
 const og = new URL(ogImage, site).href;
+const locale = lang === 'en' ? 'en_US' : 'es_PE';
+const altEs = new URL('/', site).href;
+const altEn = new URL('/en/', site).href;
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -42,8 +48,9 @@ const og = new URL(ogImage, site).href;
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#E8E6E1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#12151A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#12151A" media="(max-width: 720px)" />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="es_PE" />
+    <meta property="og:locale" content={locale} />
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -53,15 +60,22 @@ const og = new URL(ogImage, site).href;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={og} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="alternate" hreflang="es" href={canonical} />
-    <link rel="alternate" hreflang="x-default" href={canonical} />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="alternate" hreflang="es" href={altEs} />
+    <link rel="alternate" hreflang="en" href={altEn} />
+    <link rel="alternate" hreflang="x-default" href={altEs} />
     <ClientRouter />
     <script is:inline>
       (function () {
         try {
           var meta = document.querySelector('meta[name="color-scheme"]');
+          var narrow = window.matchMedia('(max-width: 720px)').matches;
           var stored = localStorage.getItem('color-scheme');
-          if (stored === 'light' || stored === 'dark' || stored === 'light dark') {
+          if (narrow) {
+            if (meta) meta.content = 'dark';
+            document.documentElement.dataset.mobileTheme = 'dark';
+          } else if (stored === 'light' || stored === 'dark' || stored === 'light dark') {
             if (meta) meta.content = stored;
           }
         } catch (_) {}
@@ -69,20 +83,26 @@ const og = new URL(ogImage, site).href;
     </script>
   </head>
   <body>
-    <a class="skip" href="#main">Saltar al contenido</a>
-    <SiteHeader />
+    <a class="skip" href="#main">{lang === 'en' ? 'Skip to content' : 'Saltar al contenido'}</a>
+    <SiteHeader lang={lang} />
     <main id="main" transition:animate="fade">
       <slot />
     </main>
-    <SiteFooter />
+    <SiteFooter lang={lang} />
     <TerminalEgg />
     <Arcade />
+    <OpenPreview />
     <script>
       function schemeMeta() {
         return document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement | null;
       }
 
+      function isMobileWidth() {
+        return window.matchMedia('(max-width: 720px)').matches;
+      }
+
       function currentScheme(): 'light' | 'dark' | 'system' {
+        if (isMobileWidth()) return 'dark';
         const c = schemeMeta()?.content;
         if (c === 'light' || c === 'dark') return c;
         return 'system';
@@ -91,36 +111,59 @@ const og = new URL(ogImage, site).href;
       function applyScheme(next: 'light' | 'dark' | 'system') {
         const meta = schemeMeta();
         if (!meta) return;
-        meta.content = next === 'system' ? 'light dark' : next;
-        try {
-          localStorage.setItem('color-scheme', meta.content);
-        } catch (_) {}
+        if (isMobileWidth()) {
+          meta.content = 'dark';
+          document.documentElement.dataset.mobileTheme = 'dark';
+        } else {
+          meta.content = next === 'system' ? 'light dark' : next;
+          delete document.documentElement.dataset.mobileTheme;
+          try {
+            localStorage.setItem('color-scheme', meta.content);
+          } catch (_) {}
+        }
         syncToggle();
       }
 
       function syncToggle() {
         const btn = document.querySelector('[data-theme-toggle]') as HTMLButtonElement | null;
         if (!btn) return;
+        if (isMobileWidth()) {
+          btn.textContent = 'tema · oscuro';
+          btn.setAttribute('aria-pressed', 'true');
+          btn.setAttribute('aria-label', 'Tema oscuro fijo en móvil');
+          btn.disabled = true;
+          return;
+        }
+        btn.disabled = false;
         const s = currentScheme();
         const label = s === 'dark' ? 'oscuro' : s === 'light' ? 'claro' : 'auto';
         btn.textContent = `tema · ${label}`;
         btn.setAttribute('aria-pressed', s === 'dark' ? 'true' : 'false');
         btn.setAttribute('aria-label', `Tema actual: ${label}. Cambiar tema`);
-        btn.dataset.themeState = label;
       }
 
       function bindTheme() {
         document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
           btn.addEventListener('click', () => {
+            if (isMobileWidth()) return;
             const s = currentScheme();
             applyScheme(s === 'light' ? 'dark' : s === 'dark' ? 'system' : 'light');
           });
         });
-        syncToggle();
+        applyScheme(currentScheme());
+      }
+
+      function registerSw() {
+        if (!('serviceWorker' in navigator)) return;
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
       }
 
       bindTheme();
+      registerSw();
       document.addEventListener('astro:page-load', bindTheme);
+      window.matchMedia('(max-width: 720px)').addEventListener('change', () => applyScheme(currentScheme()));
     </script>
   </body>
 </html>

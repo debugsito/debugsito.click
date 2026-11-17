@@ -1,19 +1,300 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatusStrip from '../../components/StatusStrip.astro';
+import OpsTicker from '../../components/OpsTicker.astro';
+import NetworkMesh from '../../components/NetworkMesh.astro';
+import Reveal from '../../components/Reveal.astro';
+import { profile, projects, repos, publications, timeline, github } from '../../lib/data';
+
+const kindLabel = { work: 'work', github: 'github', pub: 'paper' } as const;
+
+const curatedNames = new Set(repos.map((r) => r.name));
+const liveRepos = (github.repos ?? []).filter((r) => !curatedNames.has(r.name)).slice(0, 8);
+const languages = [
+  'all',
+  ...new Set(
+    [
+      ...repos.map((r) => github.repos?.find((x) => x.name === r.name)?.language),
+      ...liveRepos.map((r) => r.language),
+    ].filter(Boolean) as string[],
+  ),
+];
+
+const repoLang = (name: string) => github.repos?.find((r) => r.name === name)?.language ?? 'Other';
+
+const blurbEn: Record<string, string> = {
+  'grifos-lima':
+    'Fuel price map for Lima & Callao: drive mode, real detours (OSRM), 60-day trends and net savings per station.',
+  'tech-salary-prediction':
+    'Thesis prototype (ESAN): SHAP explanations and fairness checks that refuse to answer without enough data.',
+  'homebox-mcp':
+    'MCP server + Telegram bot on HomeBox: home inventory in natural language, with photos.',
+};
 ---
 
 <BaseLayout
-  title="debugsito · English coming soon"
-  description="English version of debugsito.click is coming soon."
+  lang="en"
+  title={`${profile.handle} · homebase`}
+  description="DevOps homebase: production rack, open source, and a living log."
   canonicalPath="/en/"
 >
-  <section class="wrap page-head prose">
-    <p class="section__eyebrow">/en</p>
-    <h1>English version coming soon</h1>
-    <p>
-      The site is Spanish-first for now. The <code>/en</code> route is scaffolded and will ship in a
-      later iteration. Meanwhile:
-      <a href="/">debugsito.click</a>.
-    </p>
+  <div class="atmosphere" aria-hidden="true">
+    <NetworkMesh />
+  </div>
+
+  <div class="pointer-stage" data-pointer-stage>
+    <div class="pointer-stage__glow" aria-hidden="true"></div>
+  </div>
+
+  <section class="wrap hero" aria-labelledby="hero-brand">
+    <OpsTicker />
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="hero__name">{profile.name}</p>
+        <p class="hero__meta">{profile.role} · {profile.location} · open source</p>
+        <h1 class="hero__brand" id="hero-brand" transition:name="brand">{profile.handle}</h1>
+        <p class="hero__tagline">
+          Digital home of a DevOps engineer obsessed with open source, automation and agents. What I
+          run in production lives here.
+        </p>
+        <div class="cta-row">
+          <a class="btn" href="#produccion">Enter the rack</a>
+          <a class="btn btn--ghost" href="#opensource">Open source</a>
+          <button type="button" class="btn btn--ghost" data-arcade-open>Arcade</button>
+          <a
+            class="btn btn--ghost"
+            href={`https://github.com/${profile.github}`}
+            rel="noopener noreferrer">GitHub</a
+          >
+        </div>
+        <StatusStrip />
+      </div>
+      <a
+        class="hero__shot"
+        href="https://grifos.debugsito.click"
+        rel="noopener noreferrer"
+        aria-label="Open Grifos Lima"
+      >
+        <img
+          src="/shots/grifos.webp"
+          alt="Screenshot of Grifos Lima in production"
+          width="1280"
+          height="720"
+          loading="eager"
+          decoding="async"
+        />
+        <span class="hero__shot-caption">grifos.debugsito.click · live</span>
+      </a>
+    </div>
   </section>
+
+  <Reveal as="section" class="section section--rack" id="produccion">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title">Production rack</h2>
+        <p class="section__lede">
+          Services I run at home. Public ones have a URL; one stays self-hosted off the public net.
+        </p>
+      </div>
+      <ul class="rack" data-rack>
+        {
+          projects.map((p, idx) => (
+            <li class="rack__unit" data-tilt>
+              <span class="rack__u" aria-hidden="true">
+                U{String(idx + 1).padStart(2, '0')}
+              </span>
+              <div class="rack__body">
+                <div class="item__meta">
+                  <span class:list={['badge', p.status === 'live' ? 'badge--live' : 'badge--self']}>
+                    {p.status === 'live' ? 'live' : 'self-hosted'}
+                  </span>
+                  <span>{p.repo}</span>
+                </div>
+                <h3 class="item__title">
+                  {p.url ? (
+                    <a href={p.url} rel="noopener noreferrer">
+                      {p.name}
+                    </a>
+                  ) : (
+                    p.name
+                  )}
+                </h3>
+                <p>{blurbEn[p.id] ?? p.blurb}</p>
+                <p class="item__meta">
+                  {p.url && (
+                    <a href={p.url} rel="noopener noreferrer">
+                      {p.url.replace(/^https:\/\//, '')}
+                    </a>
+                  )}
+                  <a href={`https://github.com/${p.repo}`} rel="noopener noreferrer">
+                    code
+                  </a>
+                </p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </Reveal>
+
+  <div class="wrap contact-band" aria-label="Quick contact">
+    <span>channel:</span>
+    <a href={`mailto:${profile.email}`}>{profile.email}</a>
+    <a href={`https://linkedin.com/in/${profile.linkedin}`} rel="noopener noreferrer">LinkedIn</a>
+    <a href={`https://github.com/${profile.github}`} rel="noopener noreferrer">GitHub</a>
+  </div>
+
+  <Reveal as="section" class="section section--log" id="bitacora">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title">journalctl — log</h2>
+        <p class="section__lede">
+          From backend to platform: agents, Terraform and MCP. Work and open source on one timeline.
+        </p>
+      </div>
+      <ol class="timeline" data-timeline>
+        {
+          timeline.map((t) => (
+            <li class="timeline__item" data-kind={t.kind}>
+              <span class="timeline__year">
+                {t.year} · {kindLabel[t.kind]}
+              </span>
+              <h3 class="timeline__title">{t.title}</h3>
+              <p class="timeline__detail">{t.detail}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </Reveal>
+
+  <Reveal as="section" class="section section--oss" id="opensource">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title">Open source I share</h2>
+        <p class="section__lede">
+          Curated highlights plus recent GitHub activity from the build snapshot. Filter by language.
+        </p>
+      </div>
+      <div class="chips" role="toolbar" aria-label="Filter by language">
+        {
+          languages.map((langName, i) => (
+            <button
+              type="button"
+              class="chip"
+              data-lang-chip={langName}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              {langName === 'all' ? 'all' : langName}
+            </button>
+          ))
+        }
+      </div>
+      <ul class="oss-list" data-oss-list>
+        {
+          repos.map((r) => (
+            <li class="oss-row" data-lang={repoLang(r.name)}>
+              <span class="oss-row__lang">{repoLang(r.name)}</span>
+              <div class="oss-row__body">
+                <h3 class="item__title">
+                  <a href={r.url} rel="noopener noreferrer">
+                    {r.name}
+                  </a>
+                </h3>
+                <p>{r.blurb}</p>
+              </div>
+              <a class="oss-row__link" href={r.url} rel="noopener noreferrer">
+                {r.repo}
+              </a>
+            </li>
+          ))
+        }
+        {
+          liveRepos.map((r) => (
+            <li class="oss-row oss-row--live" data-lang={r.language ?? 'Other'}>
+              <span class="oss-row__lang">{r.language ?? '—'}</span>
+              <div class="oss-row__body">
+                <h3 class="item__title">
+                  <a href={r.html_url} rel="noopener noreferrer">
+                    {r.name}
+                  </a>
+                </h3>
+                <p>{r.description ?? 'Public repo with recent activity.'}</p>
+              </div>
+              <span class="oss-row__meta">
+                ★ {r.stargazers_count} · {r.updated_at.slice(0, 10)}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="oss-empty" data-oss-empty hidden>Nothing for this language in the current snapshot.</p>
+      {
+        github.fetched_at && (
+          <p class="section__foot">
+            GitHub snapshot · {github.fetched_at.slice(0, 16).replace('T', ' ')} UTC
+          </p>
+        )
+      }
+    </div>
+  </Reveal>
+
+  <Reveal as="section" class="section section--pubs" id="publicaciones">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title">Springer papers</h2>
+        <p class="section__lede">Applied Machine Learning research.</p>
+      </div>
+      <ul class="list">
+        {
+          publications.map((p) => (
+            <li class="item">
+              <p class="item__meta">
+                <span>{p.date.slice(0, 7)}</span>
+                <span>{p.venue}</span>
+              </p>
+              <h3 class="item__title">
+                <a href={p.url} rel="noopener noreferrer">
+                  {p.title}
+                </a>
+              </h3>
+              <p>{p.summary}</p>
+              <p class="item__meta">{p.authors.join(' · ')}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </Reveal>
+
+  <Reveal as="section" class="section section--contact" id="contacto">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title">Open a channel</h2>
+        <p class="section__lede">
+          Senior DevOps since 2016. Cloud, pipelines and IaC in finance & payments; today I lead
+          automation for an AI agent platform on Azure. Arch + Omarchy, Claude Code and Cursor are
+          daily drivers. Everything public I build lands here or on GitHub.
+        </p>
+      </div>
+      <div class="contact-panel">
+        <a class="contact-panel__link" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a
+          class="contact-panel__link"
+          href={`https://linkedin.com/in/${profile.linkedin}`}
+          rel="noopener noreferrer">linkedin/{profile.linkedin}</a
+        >
+        <a
+          class="contact-panel__link"
+          href={`https://github.com/${profile.github}`}
+          rel="noopener noreferrer">github/{profile.github}</a
+        >
+      </div>
+    </div>
+  </Reveal>
+
+  <script>
+    import '../../scripts/homebase.ts';
+  </script>
 </BaseLayout>

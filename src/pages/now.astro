@@ -12,7 +12,7 @@ const paragraphs = body.split(/\n\n+/);
   canonicalPath="/now"
 >
   <article class="wrap page-head prose">
-    <p class="section__eyebrow">/now · actualizado {front.updated ?? '—'}</p>
+    <p class="hero__meta">/now · actualizado {front.updated ?? '—'}</p>
     <h1>{front.title ?? 'Ahora'}</h1>
     {paragraphs.map((p) => <p>{p}</p>)}
   </article>

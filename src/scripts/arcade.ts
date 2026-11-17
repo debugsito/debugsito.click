@@ -4,16 +4,20 @@ type ArcadeEls = {
   dialog: HTMLDialogElement;
   canvas: HTMLCanvasElement;
   scoreEl: HTMLElement;
+  hiEl: HTMLElement | null;
   pauseBtn: HTMLButtonElement;
   closeBtn: HTMLButtonElement;
   ctx: CanvasRenderingContext2D;
 };
+
+const HI_KEY = 'debugsito-arcade-hi';
 
 let wired = false;
 let raf = 0;
 let running = false;
 let paused = false;
 let score = 0;
+let hiScore = 0;
 let lives = 5;
 let combo = 0;
 let paddle = { x: 180, w: 116, h: 12 };
@@ -23,15 +27,39 @@ let lastTs = 0;
 const keys = { left: false, right: false };
 const hitPad = 14;
 
+function loadHi() {
+  try {
+    hiScore = Math.max(0, Number(localStorage.getItem(HI_KEY) || 0) || 0);
+  } catch {
+    hiScore = 0;
+  }
+}
+
+function saveHi() {
+  if (score <= hiScore) return;
+  hiScore = score;
+  try {
+    localStorage.setItem(HI_KEY, String(hiScore));
+  } catch {
+    /* ignore */
+  }
+}
+
+function syncScoreUi(els: ArcadeEls) {
+  els.scoreEl.textContent = `score ${score}`;
+  if (els.hiEl) els.hiEl.textContent = `hi ${hiScore}`;
+}
+
 function query(): ArcadeEls | null {
   const dialog = document.getElementById('arcade') as HTMLDialogElement | null;
   const canvas = document.getElementById('arcade-canvas') as HTMLCanvasElement | null;
   const scoreEl = document.querySelector<HTMLElement>('[data-arcade-score]');
+  const hiEl = document.querySelector<HTMLElement>('[data-arcade-hi]');
   const pauseBtn = document.querySelector<HTMLButtonElement>('[data-arcade-pause]');
   const closeBtn = document.querySelector<HTMLButtonElement>('[data-arcade-close]');
   const ctx = canvas?.getContext('2d') ?? null;
   if (!dialog || !canvas || !scoreEl || !pauseBtn || !closeBtn || !ctx) return null;
-  return { dialog, canvas, scoreEl, pauseBtn, closeBtn, ctx };
+  return { dialog, canvas, scoreEl, hiEl, pauseBtn, closeBtn, ctx };
 }
 
 function padY(canvas: HTMLCanvasElement) {
@@ -46,7 +74,8 @@ function reset(els: ArcadeEls) {
   spawn = 0;
   paddle.w = Math.min(116, Math.floor(els.canvas.width * 0.28));
   paddle.x = els.canvas.width / 2 - paddle.w / 2;
-  els.scoreEl.textContent = 'score 0';
+  loadHi();
+  syncScoreUi(els);
 }
 
 function paintBg(els: ArcadeEls) {
@@ -77,16 +106,19 @@ function draw(els: ArcadeEls) {
   ctx.fillStyle = '#9aa0a8';
   ctx.font = '12px "IBM Plex Mono", monospace';
   ctx.fillText(`vidas ${lives}`, 12, 18);
+  ctx.fillText(`hi ${hiScore}`, canvas.width - 64, 18);
   if (combo > 1) ctx.fillText(`combo x${combo}`, 100, 18);
   if (paused) {
     ctx.fillStyle = 'rgba(13,18,24,0.65)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#eceae4';
-    ctx.fillText(
-      lives <= 0 ? 'game over · reiniciar' : 'pausado',
-      canvas.width / 2 - 70,
-      canvas.height / 2,
-    );
+    const msg =
+      lives <= 0
+        ? score >= hiScore && score > 0
+          ? `game over · hi ${hiScore}`
+          : 'game over · reiniciar'
+        : 'pausado';
+    ctx.fillText(msg, canvas.width / 2 - 70, canvas.height / 2);
   }
 }
 
@@ -132,7 +164,8 @@ function step(ts: number) {
         if (p.good) {
           combo += 1;
           score += combo > 2 ? 2 : 1;
-          els.scoreEl.textContent = `score ${score}`;
+          saveHi();
+          syncScoreUi(els);
         } else {
           combo = 0;
           lives -= 1;
@@ -151,6 +184,8 @@ function step(ts: number) {
     packets = next;
     if (lives <= 0) {
       paused = true;
+      saveHi();
+      syncScoreUi(els);
       els.pauseBtn.textContent = 'reiniciar';
       els.pauseBtn.setAttribute('aria-pressed', 'true');
     }

@@ -202,32 +202,67 @@ export function bootTerminal() {
     });
   }
 
-  function openExternal(url: string) {
-    print(`opening ${url} …`);
-    window.open(url, '_blank', 'noopener,noreferrer');
+  function preview(detail: {
+    title: string;
+    blurb: string;
+    url: string;
+    kicker?: string;
+    image?: string;
+  }) {
+    print(`preview ${detail.url}`);
+    document.dispatchEvent(new CustomEvent('debugsito:open-preview', { detail }));
   }
 
   function openTarget(name: string) {
     const svc = services();
+    if (name === 'grifos' && svc.grifos) {
+      preview({
+        title: 'Grifos Lima',
+        blurb: 'Mapa de precios de combustible en Lima y Callao.',
+        url: svc.grifos,
+        kicker: 'prod · live',
+        image: '/shots/grifos.webp',
+      });
+      return;
+    }
+    if (name === 'salarios' && svc.salarios) {
+      preview({
+        title: 'Estimación salarial',
+        blurb: 'Prototipo de tesis (ESAN) con SHAP y auditoría de equidad.',
+        url: svc.salarios,
+        kicker: 'prod · live',
+        image: '/shots/salarios.webp',
+      });
+      return;
+    }
     if (svc[name]) {
-      openExternal(svc[name]);
+      preview({ title: name, blurb: 'Servicio en el rack.', url: svc[name], kicker: 'prod' });
       return;
     }
     const repo = repoByName(name);
     if (repo) {
-      openExternal(repo.html_url);
+      preview({
+        title: repo.name,
+        blurb: repo.description ?? 'Repo público en el snapshot de GitHub.',
+        url: repo.html_url,
+        kicker: `github · ${repo.language ?? 'code'} · ★ ${repo.stargazers_count}`,
+      });
       return;
     }
     const abs = resolvePath(cwd, name);
     const n = getNode(abs);
     if (n?.type === 'link') {
-      // anchors / rutas del mismo sitio: misma pestaña
       if (n.target.startsWith('/') || n.target.startsWith('#')) {
         print(`opening ${n.target} …`);
         location.href = n.target;
         return;
       }
-      openExternal(n.target);
+      preview({
+        title: name,
+        blurb: n.hint ?? 'link',
+        url: n.target,
+        kicker: 'link',
+      });
       return;
     }
     print(`open: desconocido «${name}» — prueba: open grifos | open salarios | ls ~/repos`);

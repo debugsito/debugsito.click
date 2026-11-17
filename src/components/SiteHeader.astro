@@ -1,38 +1,101 @@
 ---
-const links = [
-  { href: '/#produccion', label: 'Rack' },
-  { href: '/#opensource', label: 'OSS' },
-  { href: '/#bitacora', label: 'Bitácora', optional: true },
-  { href: '/#contacto', label: 'Contacto', optional: true },
-  { href: '/now', label: 'Ahora', optional: true },
-  { href: '/changelog', label: 'Log', optional: true },
+interface Props {
+  lang?: 'es' | 'en';
+}
+const { lang = 'es' } = Astro.props;
+
+const copy =
+  lang === 'en'
+    ? {
+        rack: 'Rack',
+        oss: 'OSS',
+        log: 'Log',
+        contact: 'Contact',
+        now: 'Now',
+        changelog: 'Changelog',
+        more: 'More',
+        theme: 'theme',
+        arcade: 'arcade',
+        shell: 'shell',
+        en: 'ES',
+        enHref: '/',
+      }
+    : {
+        rack: 'Rack',
+        oss: 'OSS',
+        log: 'Bitácora',
+        contact: 'Contacto',
+        now: 'Ahora',
+        changelog: 'Log',
+        more: 'Más',
+        theme: 'tema',
+        arcade: 'arcade',
+        shell: 'shell',
+        en: 'EN',
+        enHref: '/en/',
+      };
+
+const primary = [
+  { href: lang === 'en' ? '/en/#produccion' : '/#produccion', label: copy.rack },
+  { href: lang === 'en' ? '/en/#opensource' : '/#opensource', label: copy.oss },
+];
+
+const more = [
+  { href: lang === 'en' ? '/en/#bitacora' : '/#bitacora', label: copy.log },
+  { href: lang === 'en' ? '/en/#contacto' : '/#contacto', label: copy.contact },
+  { href: lang === 'en' ? '/en/now' : '/now', label: copy.now },
+  { href: lang === 'en' ? '/en/changelog' : '/changelog', label: copy.changelog },
 ];
 ---
 
 <header class="site-header" transition:name="site-header">
   <div class="wrap site-header__inner">
-    <a class="brand" href="/" transition:name="brand-link">debugsito</a>
-    <nav class="nav" aria-label="Principal">
+    <a class="brand" href={lang === 'en' ? '/en/' : '/'} transition:name="brand-link">debugsito</a>
+    <nav class="nav" aria-label={lang === 'en' ? 'Primary' : 'Principal'}>
       <div class="nav__links">
+        {primary.map((l) => <a href={l.href}>{l.label}</a>)}
         {
-          links.map((l) => (
-            <a class={l.optional ? 'nav__desk-optional' : undefined} href={l.href}>
+          more.map((l) => (
+            <a class="nav__desk-optional" href={l.href}>
               {l.label}
             </a>
           ))
         }
       </div>
       <div class="nav__tools">
+        <details class="nav-more">
+          <summary class="icon-btn nav-more__summary">{copy.more}</summary>
+          <div class="nav-more__panel" role="menu">
+            {
+              more.map((l) => (
+                <a role="menuitem" href={l.href}>
+                  {l.label}
+                </a>
+              ))
+            }
+            <a role="menuitem" href={copy.enHref}>{copy.en}</a>
+          </div>
+        </details>
+        <a class="icon-btn nav__lang-desk" href={copy.enHref}>{copy.en}</a>
         <button type="button" class="icon-btn" data-theme-toggle aria-pressed="false">
-          tema
+          {copy.theme}
         </button>
         <button type="button" class="icon-btn" data-arcade-open>
-          arcade
+          {copy.arcade}
         </button>
         <button type="button" class="icon-btn" data-term-open aria-controls="term-dock" aria-expanded="false">
-          shell
+          {copy.shell}
         </button>
       </div>
     </nav>
   </div>
 </header>
+
+<script>
+  document.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement | null;
+    document.querySelectorAll('details.nav-more[open]').forEach((d) => {
+      if (!d.contains(t)) d.removeAttribute('open');
+    });
+  });
+</script>

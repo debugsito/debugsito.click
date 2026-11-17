@@ -1,4 +1,8 @@
 ---
+interface Props {
+  lang?: 'es' | 'en';
+}
+const { lang = 'es' } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
@@ -6,11 +10,25 @@ const year = new Date().getFullYear();
   <div class="wrap site-footer__inner">
     <p>© {year} debugsito · Lima, Perú</p>
     <p>
-      <a href="/now">/now</a>
-      ·
-      <a href="/changelog">/changelog</a>
-      ·
-      <a href="/en/">/en</a> (próximamente)
+      {
+        lang === 'en' ? (
+          <>
+            <a href="/en/now">/now</a>
+            {' · '}
+            <a href="/en/changelog">/changelog</a>
+            {' · '}
+            <a href="/">ES</a>
+          </>
+        ) : (
+          <>
+            <a href="/now">/now</a>
+            {' · '}
+            <a href="/changelog">/changelog</a>
+            {' · '}
+            <a href="/en/">EN</a>
+          </>
+        )
+      }
     </p>
   </div>
 </footer>

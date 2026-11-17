@@ -2,6 +2,11 @@
 title: Changelog del sitio
 ---
 
+## 2026-11-17 — round de mejoras
+
+- Menú Más en móvil; /en homebase completa; dark fijo en móvil.
+- Preview al `open`; hi-score del arcade; PWA + offline; hero con shot de Grifos.
+
 ## 2026-11-17 — mobile fix
 
 - Arcade reescrito (abre bien en móvil / tras navegación).

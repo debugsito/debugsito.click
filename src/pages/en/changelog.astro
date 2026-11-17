@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { readContent, splitFrontmatter } from '../../lib/md';
+
+const { body } = splitFrontmatter(readContent('changelog.md'));
+
+function renderInline(text: string) {
+  return text
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
+const blocks = body.split(/\n(?=## )/);
+---
+
+<BaseLayout
+  lang="en"
+  title="Changelog · debugsito"
+  description="Site changelog for debugsito.click."
+  canonicalPath="/en/changelog"
+>
+  <article class="wrap page-head prose">
+    <p class="hero__meta">/en/changelog</p>
+    <h1>Site changelog</h1>
+    <p>Same source of truth as the Spanish log — entries stay bilingual-friendly and dated.</p>
+    {
+      blocks.map((block) => {
+        const lines = block.trim().split('\n');
+        const heading = lines[0].replace(/^##\s+/, '');
+        const items = lines.slice(1).filter((l) => l.startsWith('- '));
+        return (
+          <section>
+            <h2 set:html={renderInline(heading)} />
+            <ul>
+              {items.map((item) => (
+                <li set:html={renderInline(item.replace(/^- /, ''))} />
+              ))}
+            </ul>
+          </section>
+        );
+      })
+    }
+    <p><a href="/changelog">Versión en español</a></p>
+  </article>
+</BaseLayout>

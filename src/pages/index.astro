@@ -35,19 +35,41 @@ const repoLang = (name: string) =>
 
   <section class="wrap hero" aria-labelledby="hero-brand">
     <OpsTicker />
-    <p class="hero__name">{profile.name}</p>
-    <p class="hero__meta">{profile.role} · {profile.location} · open source</p>
-    <h1 class="hero__brand" id="hero-brand" transition:name="brand">{profile.handle}</h1>
-    <p class="hero__tagline">{profile.tagline}</p>
-    <div class="cta-row">
-      <a class="btn" href="#produccion">Entrar al rack</a>
-      <a class="btn btn--ghost" href="#opensource">Open source</a>
-      <button type="button" class="btn btn--ghost" data-arcade-open>Arcade</button>
-      <a class="btn btn--ghost" href={`https://github.com/${profile.github}`} rel="noopener noreferrer"
-        >GitHub</a
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="hero__name">{profile.name}</p>
+        <p class="hero__meta">{profile.role} · {profile.location} · open source</p>
+        <h1 class="hero__brand" id="hero-brand" transition:name="brand">{profile.handle}</h1>
+        <p class="hero__tagline">{profile.tagline}</p>
+        <div class="cta-row">
+          <a class="btn" href="#produccion">Entrar al rack</a>
+          <a class="btn btn--ghost" href="#opensource">Open source</a>
+          <button type="button" class="btn btn--ghost" data-arcade-open>Arcade</button>
+          <a
+            class="btn btn--ghost"
+            href={`https://github.com/${profile.github}`}
+            rel="noopener noreferrer">GitHub</a
+          >
+        </div>
+        <StatusStrip />
+      </div>
+      <a
+        class="hero__shot"
+        href="https://grifos.debugsito.click"
+        rel="noopener noreferrer"
+        aria-label="Abrir Grifos Lima"
       >
+        <img
+          src="/shots/grifos.webp"
+          alt="Captura de Grifos Lima en producción"
+          width="1280"
+          height="720"
+          loading="eager"
+          decoding="async"
+        />
+        <span class="hero__shot-caption">grifos.debugsito.click · live</span>
+      </a>
     </div>
-    <StatusStrip />
   </section>
 
   <Reveal as="section" class="section section--rack" id="produccion">

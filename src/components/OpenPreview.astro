@@ -1,0 +1,31 @@
+---
+---
+
+<dialog class="open-card" id="open-card" aria-labelledby="open-card-title" transition:persist="open-card">
+  <div class="open-card__media">
+    <img
+      data-open-img
+      src="/shots/grifos.webp"
+      alt=""
+      width="640"
+      height="360"
+      hidden
+    />
+  </div>
+  <div class="open-card__body">
+    <p class="open-card__kicker" data-open-kicker></p>
+    <h2 id="open-card-title" class="open-card__title" data-open-title></h2>
+    <p class="open-card__blurb" data-open-blurb></p>
+    <p class="open-card__url" data-open-url></p>
+    <div class="open-card__actions">
+      <a class="btn" data-open-go rel="noopener noreferrer" target="_blank">Abrir</a>
+      <button type="button" class="btn btn--ghost" data-open-dismiss>Quedarme</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { bootOpenPreview } from '../scripts/open-preview';
+  bootOpenPreview();
+  document.addEventListener('astro:page-load', () => bootOpenPreview());
+</script>
