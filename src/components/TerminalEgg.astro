@@ -11,7 +11,7 @@
 >
   <div class="term-dock__panel" id="term" hidden>
     <div class="term-dock__bar">
-      <span>debugsito://shell</span>
+      <span>guest@debugsito.click</span>
       <div class="term-dock__actions">
         <button type="button" class="icon-btn term-dock__btn" data-term-collapse>
           minimizar
@@ -32,6 +32,7 @@
     >
       <span class="term-dock__prompt" aria-hidden="true">$</span>
     </button>
+    <span class="term-dock__cwd" data-term-cwd title="directorio actual">~</span>
     <label class="term-dock__field">
       <span class="visually-hidden">Comando</span>
       <input
@@ -39,10 +40,9 @@
         name="cmd"
         spellcheck="false"
         aria-label="Comando de la shell"
-        placeholder="comando"
+        placeholder="ls"
       />
     </label>
-    <span class="term-dock__hint" aria-hidden="true">help</span>
   </form>
 </aside>
 

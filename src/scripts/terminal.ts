@@ -1,6 +1,17 @@
-const STORAGE_KEY = 'debugsito-term-expanded';
+import {
+  HOME,
+  getNode,
+  listDir,
+  repoByName,
+  resolvePath,
+  services,
+  shortHome,
+  type Node,
+} from './term-world';
 
 let wired = false;
+let cwd = HOME;
+let history: string[] = [];
 
 export function bootTerminal() {
   const dock = document.querySelector<HTMLElement>('[data-term-dock]');
@@ -8,17 +19,13 @@ export function bootTerminal() {
   const out = document.getElementById('term-out');
   const form = document.getElementById('term-form') as HTMLFormElement | null;
   const input = document.getElementById('term-input') as HTMLInputElement | null;
+  const cwdEl = document.querySelector<HTMLElement>('[data-term-cwd]');
   if (!dock || !panel || !out || !form || !input) return;
 
-  const help = `comandos:
-  help                 esta ayuda
-  ls                   secciones
-  now | changelog      navega
-  open grifos|salarios abre proyecto
-  play                 mini-arcade deploy dodge
-  whoami               quién soy
-  clear                limpia historial
-  exit | q             minimiza el dock`;
+  function syncCwd() {
+    if (cwdEl) cwdEl.textContent = shortHome(cwd);
+    input.placeholder = shortHome(cwd);
+  }
 
   function isExpanded() {
     return dock.dataset.expanded === 'true';
@@ -31,13 +38,8 @@ export function bootTerminal() {
     document.querySelectorAll('[data-term-toggle], [data-term-open]').forEach((b) => {
       b.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
-    try {
-      sessionStorage.setItem(STORAGE_KEY, open ? '1' : '0');
-    } catch {
-      /* ignore */
-    }
     if (open && !out.textContent) {
-      out.textContent = 'ready · help\n';
+      out.textContent = 'Debugsito OS · guest@lima · type help\n';
     }
     if (open) {
       out.scrollTop = out.scrollHeight;
@@ -45,9 +47,9 @@ export function bootTerminal() {
     }
   }
 
-  function expand(focus = true) {
+  function expand() {
     setExpanded(true);
-    if (focus) queueMicrotask(() => input.focus());
+    queueMicrotask(() => input.focus());
   }
 
   function collapse() {
@@ -59,37 +61,417 @@ export function bootTerminal() {
     else expand();
   }
 
-  function focusDock() {
-    input.focus();
-  }
-
-  function println(line: string) {
+  function print(line = '') {
     if (!isExpanded()) setExpanded(true);
     out.textContent += line + '\n';
     out.scrollTop = out.scrollHeight;
   }
 
+  function printBlock(text: string) {
+    if (!isExpanded()) setExpanded(true);
+    out.textContent += text.replace(/\n?$/, '\n');
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function helpText() {
+    return [
+      'guest shell — útil, con personalidad',
+      '',
+      'moverse     ls  cd  pwd  tree  cat  head  less',
+      'sistema    whoami  uname  hostname  date  uptime  free  df  ps',
+      'cloud      repos  open <svc|repo>  curl <repo>  git status',
+      'sitio      now  changelog  play  open grifos|salarios',
+      'misc       clear  history  fortune  neofetch  man <cmd>',
+      '',
+      'empieza:  ls  ·  cd prod  ·  cat grifos  ·  open grifos',
+    ].join('\n');
+  }
+
+  function readFile(node: Node): string {
+    if (node.type === 'file') return node.body;
+    if (node.type === 'link') return `→ ${node.target}${node.hint ? '  (' + node.hint + ')' : ''}\n`;
+    return '';
+  }
+
+  function lsLong(abs: string, name: string, node: Node): string {
+    if (node.type === 'dir') return `drwxr-xr-x  guest guest     - ${name}/`;
+    if (node.type === 'link') return `lrwxrwxrwx  guest guest     - ${name} -> ${node.target}`;
+    const mode = node.mode ?? '-rw-r--r--';
+    const size = String(node.body.length).padStart(5);
+    return `${mode}  guest guest ${size} ${name}`;
+  }
+
+  function cmdLs(args: string[]) {
+    const long = args.includes('-l') || args.includes('-la') || args.includes('-al');
+    const all = args.includes('-a') || args.includes('-la') || args.includes('-al');
+    const target = args.find((a) => !a.startsWith('-')) ?? '.';
+    const abs = resolvePath(cwd, target);
+    const names = listDir(abs);
+    if (!names) {
+      const n = getNode(abs);
+      if (n && n.type !== 'dir') {
+        print(target.replace(/\/$/, '').split('/').pop() || target);
+        return;
+      }
+      print(`ls: ${target}: No such file or directory`);
+      return;
+    }
+    const shown = all ? ['.', '..', ...names] : names;
+    if (!long) {
+      print(
+        shown
+          .map((n) => {
+            if (n === '.' || n === '..') return n;
+            const child = getNode(resolvePath(abs, n));
+            if (child?.type === 'dir') return n + '/';
+            if (child?.type === 'link') return n + '@';
+            return n;
+          })
+          .join('  '),
+      );
+      return;
+    }
+    for (const n of shown) {
+      if (n === '.') {
+        print(lsLong(abs, '.', getNode(abs)!));
+        continue;
+      }
+      if (n === '..') {
+        print('drwxr-xr-x  guest guest     - ../');
+        continue;
+      }
+      const child = getNode(resolvePath(abs, n));
+      if (child) print(lsLong(abs, n, child));
+    }
+  }
+
+  function cmdCd(args: string[]) {
+    const target = args[0] ?? '~';
+    const abs = resolvePath(cwd, target === '~' ? HOME : target);
+    const n = getNode(abs);
+    if (!n) {
+      print(`cd: ${target}: No such file or directory`);
+      return;
+    }
+    if (n.type === 'link') {
+      print(`cd: ${target}: es un link a ${n.target} — prueba: open ${target}`);
+      return;
+    }
+    if (n.type !== 'dir') {
+      print(`cd: ${target}: Not a directory`);
+      return;
+    }
+    cwd = abs;
+    syncCwd();
+  }
+
+  function cmdCat(args: string[], lines?: number) {
+    if (!args[0]) {
+      print('cat: missing operand');
+      return;
+    }
+    const abs = resolvePath(cwd, args[0]);
+    const n = getNode(abs);
+    if (!n) {
+      print(`cat: ${args[0]}: No such file or directory`);
+      return;
+    }
+    if (n.type === 'dir') {
+      print(`cat: ${args[0]}: Is a directory`);
+      return;
+    }
+    let body = readFile(n);
+    if (lines != null) body = body.split('\n').slice(0, lines).join('\n') + '\n';
+    printBlock(body);
+  }
+
+  function cmdTree(abs: string, prefix = '', depth = 0) {
+    if (depth > 3) return;
+    const names = listDir(abs);
+    if (!names) return;
+    names.forEach((name, i) => {
+      const last = i === names.length - 1;
+      const branch = last ? '└── ' : '├── ';
+      const childAbs = resolvePath(abs, name);
+      const child = getNode(childAbs);
+      const mark = child?.type === 'dir' ? '/' : child?.type === 'link' ? '@' : '';
+      print(prefix + branch + name + mark);
+      if (child?.type === 'dir') {
+        cmdTree(childAbs, prefix + (last ? '    ' : '│   '), depth + 1);
+      }
+    });
+  }
+
+  function openTarget(name: string) {
+    const svc = services();
+    if (svc[name]) {
+      print(`opening ${svc[name]} …`);
+      location.href = svc[name];
+      return;
+    }
+    const repo = repoByName(name);
+    if (repo) {
+      print(`opening ${repo.html_url} …`);
+      location.href = repo.html_url;
+      return;
+    }
+    const abs = resolvePath(cwd, name);
+    const n = getNode(abs);
+    if (n?.type === 'link') {
+      print(`opening ${n.target} …`);
+      location.href = n.target;
+      return;
+    }
+    print(`open: desconocido «${name}» — prueba: open grifos | open salarios | ls ~/repos`);
+  }
+
   function run(raw: string) {
-    const cmd = raw.trim().toLowerCase();
-    println('$ ' + raw);
-    if (!cmd) return;
-    if (cmd === 'help') println(help);
-    else if (cmd === 'ls')
-      println('produccion  bitacora  opensource  publicaciones  contacto  now  changelog  play');
-    else if (cmd === 'now') location.href = '/now';
-    else if (cmd === 'changelog') location.href = '/changelog';
-    else if (cmd === 'whoami')
-      println('Carlos Sebastian Ramos Flores · debugsito · Senior DevOps Engineer · Lima');
-    else if (cmd === 'clear') out.textContent = '';
-    else if (cmd === 'exit' || cmd === 'q') collapse();
-    else if (cmd === 'play') {
-      document.dispatchEvent(new CustomEvent('debugsito:arcade-open'));
-    } else if (cmd.startsWith('open ')) {
-      const t = cmd.slice(5).trim();
-      if (t === 'grifos') location.href = 'https://grifos.debugsito.click';
-      else if (t === 'salarios') location.href = 'https://salarios.debugsito.click';
-      else println('uso: open grifos|salarios');
-    } else println(`desconocido: ${cmd} · help`);
+    const trimmed = raw.trim();
+    print(`guest:${shortHome(cwd)}$ ${raw}`);
+    if (!trimmed) return;
+    history.push(trimmed);
+    if (history.length > 40) history.shift();
+
+    const parts = trimmed.match(/(?:[^\s"]+|"[^"]*")+/g)?.map((p) => p.replace(/^"|"$/g, '')) ?? [];
+    const bin = (parts[0] || '').toLowerCase();
+    const args = parts.slice(1);
+
+    switch (bin) {
+      case 'help':
+      case '?':
+        printBlock(helpText());
+        break;
+      case 'man':
+        if (!args[0]) print('qué manual?  man ls');
+        else if (['ls', 'cd', 'cat', 'open', 'sudo', 'rm'].includes(args[0]))
+          print(`${args[0]}(1) — funciona aquí. el resto es folklore educado.`);
+        else print(`no manual entry for ${args[0]}`);
+        break;
+      case 'ls':
+        cmdLs(args);
+        break;
+      case 'cd':
+        cmdCd(args);
+        break;
+      case 'pwd':
+        print(cwd);
+        break;
+      case 'cat':
+      case 'less':
+      case 'more':
+        cmdCat(args);
+        break;
+      case 'head':
+        cmdCat(args, 8);
+        break;
+      case 'tail':
+        if (!args[0]) print('tail: missing operand');
+        else {
+          const abs = resolvePath(cwd, args[0]);
+          const n = getNode(abs);
+          if (!n || n.type === 'dir') print(`tail: ${args[0]}: error`);
+          else {
+            const lines = readFile(n).trimEnd().split('\n');
+            printBlock(lines.slice(-8).join('\n') + '\n');
+          }
+        }
+        break;
+      case 'tree':
+        print('.');
+        cmdTree(args[0] ? resolvePath(cwd, args[0]) : cwd);
+        break;
+      case 'find': {
+        const start = resolvePath(cwd, args[0] && !args[0].startsWith('-') ? args[0] : '.');
+        const walk = (abs: string) => {
+          print(abs);
+          const names = listDir(abs);
+          if (!names) return;
+          for (const n of names) walk(resolvePath(abs, n));
+        };
+        if (!getNode(start)) print(`find: ${args[0] ?? '.'}: No such file or directory`);
+        else walk(start);
+        break;
+      }
+      case 'whoami':
+        print('guest');
+        print('# en el curriculum: Carlos Sebastian Ramos Flores · debugsito');
+        break;
+      case 'id':
+        print('uid=1001(guest) gid=1001(guest) groups=1001(guest),42(curious)');
+        break;
+      case 'hostname':
+        print('debugsito.click');
+        break;
+      case 'uname':
+        if (args.includes('-a')) print('DebugsitoOS lima 0.1-guest #1 SMP PREEMPT_DYNAMIC Lima');
+        else print('DebugsitoOS');
+        break;
+      case 'date':
+        print(new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' }) + ' -05 (America/Lima)');
+        break;
+      case 'uptime':
+        print('up too many side projects,  1 user,  load average: 0.13, 0.09, 0.07');
+        break;
+      case 'free':
+        print('              total        used        free');
+        print('Mem:       16G coffee    15G tabs    1G focus');
+        break;
+      case 'df':
+        print('Filesystem      Size  Used Avail Use% Mounted on');
+        print('overlay         42G   13G   29G  31% /');
+        print('sanity          1.0G  980M   20M  98% /home/debugsito/focus');
+        break;
+      case 'ps':
+        print('USER       PID %CPU CMD');
+        print('guest        1  0.0 /sbin/init');
+        print('guest       42  1.2 shell.dock');
+        print('guest      217  0.4 arcade (sleeping)');
+        print('guest      512  3.1 browser-tabs --count=too-many');
+        break;
+      case 'top':
+        print('top - guest view — press q mentally');
+        print('Tasks: 3 useful, 12 decorative, 1 arcade');
+        print('%Cpu: 12.0 us,  3.0 sy, 85.0 idle (scrolling)');
+        break;
+      case 'kill':
+      case 'killall':
+        print('kill: permission denied (el guest no mata procesos, solo curiosidad)');
+        break;
+      case 'sudo':
+        print('guest is not in the sudoers file. This incident will be reported to /var/log/syslog.');
+        print('# spoiler: el log también es de mentira, pero el rechazo es real.');
+        break;
+      case 'su':
+        print('su: Authentication failure');
+        break;
+      case 'rm':
+        if (args.some((a) => a.includes('/')) || args.includes('-rf') || args.includes('-fr'))
+          print('rm: refusing to touch the host. /tmp es tu sandbox (cd /tmp).');
+        else print('rm: read-only filesystem (esta caja es de lectura social)');
+        break;
+      case 'mkdir':
+      case 'touch':
+      case 'mv':
+      case 'cp':
+        print(`${bin}: read-only filesystem — excepto /tmp, y /tmp olvida todo al recargar`);
+        break;
+      case 'echo':
+        print(args.join(' '));
+        break;
+      case 'history':
+        history.forEach((h, i) => print(` ${i + 1}  ${h}`));
+        break;
+      case 'clear':
+        out.textContent = '';
+        break;
+      case 'exit':
+      case 'q':
+      case 'logout':
+        collapse();
+        break;
+      case 'play':
+        document.dispatchEvent(new CustomEvent('debugsito:arcade-open'));
+        break;
+      case 'now':
+        location.href = '/now';
+        break;
+      case 'changelog':
+        location.href = '/changelog';
+        break;
+      case 'open':
+        if (!args[0]) print('uso: open grifos|salarios|<repo>');
+        else openTarget(args[0]);
+        break;
+      case 'curl':
+      case 'wget': {
+        const name = (args.find((a) => !a.startsWith('-')) || '').replace(/^https?:\/\/(www\.)?github.com\/debugsito\//, '');
+        if (!name) {
+          print(`${bin}: prueba curl grifos-lima  o  curl claude-toolkit`);
+          break;
+        }
+        if (services()[name]) {
+          print(`HTTP/1.1 302 → ${services()[name]}`);
+          print('(usa open ' + name + ' para ir)');
+          break;
+        }
+        const repo = repoByName(name);
+        if (repo) {
+          print(`HTTP/1.1 200 OK`);
+          print(`content-type: application/vnd.github+json`);
+          print(`x-snapshot: build-time`);
+          print('');
+          print(JSON.stringify({ name: repo.name, stars: repo.stargazers_count, lang: repo.language, url: repo.html_url }, null, 2));
+        } else print(`${bin}: no encontrado en el snapshot — ls ~/repos`);
+        break;
+      }
+      case 'git':
+        if (args[0] === 'status') {
+          print('On branch main');
+          print('Your branch is up to date with \'origin/main\'.');
+          print('nothing to commit, working tree clean');
+          print('# (en el browser no hay working tree. hay snapshot.)');
+        } else if (args[0] === 'log') {
+          print('commit decoy (HEAD -> main)');
+          print('Author: debugsito <guest@debugsito.click>');
+          print('Date:   the last deploy');
+          print('');
+          print('    chore: keep the guest shell interesting');
+        } else if (args[0] === 'clone') {
+          print('git clone: en el browser no clonas; open <repo> o ls ~/repos');
+        } else print('git: prueba git status | git log');
+        break;
+      case 'repos':
+        cwd = HOME + '/repos';
+        syncCwd();
+        print('(cwd → ~/repos)');
+        cmdLs([]);
+        break;
+      case 'neofetch':
+      case 'fastfetch':
+        printBlock(
+          [
+            '          .',
+            '       .-+- guest@debugsito.click',
+            '     .-+--- OS: Debugsito OS 0.1 (lima)',
+            '   .-+----- Host: homebase / Astro SSG',
+            ' .-+------- Kernel: curiosity/guest',
+            '-+--------- Shell: dock zsh-ish',
+            '            DE: browser',
+            '            CPU: overcaffeinated devops',
+            '            Memory: 15G tabs / 1G focus',
+          ].join('\n'),
+        );
+        break;
+      case 'fortune':
+      case 'cowthink':
+        print(
+          [
+            'el prod no perdona, pero el guest shell sí.',
+            'OIDC > pegar secretos en el CI.',
+            'si funciona en mi laptop, aún no está en prod.',
+            'rm -rf / aquí solo hiere sentimientos.',
+            'la bitácora no es un CV: es journalctl con filtros.',
+          ][Math.floor(Math.random() * 5)],
+        );
+        break;
+      case 'ping':
+        print(`PING ${args[0] || 'debugsito.click'} (127.0.0.1): 56 data bytes`);
+        print('64 bytes from localhost: icmp_seq=0 ttl=64 time=0.4 ms');
+        print('# todo pasa por el browser. el ping es teatro de red.');
+        break;
+      case 'ssh':
+        print('ssh: connection refused — esta caja ya eres tú');
+        break;
+      case 'docker':
+      case 'kubectl':
+      case 'terraform':
+        print(`${bin}: instalado en la cabeza del host, no en el guest tty`);
+        print('# mira ~/repos y ~/prod para lo que sí está publicado');
+        break;
+      default:
+        print(`${bin}: command not found`);
+        print('# help — o ls para mirar el filesystem');
+    }
   }
 
   form.onsubmit = (e) => {
@@ -98,13 +480,9 @@ export function bootTerminal() {
     input.value = '';
   };
 
-  // restore expanded preference across navigations
-  try {
-    if (sessionStorage.getItem(STORAGE_KEY) === '1') setExpanded(true);
-    else setExpanded(false);
-  } catch {
-    setExpanded(false);
-  }
+  // always minimized by default
+  setExpanded(false);
+  syncCwd();
 
   if (!wired) {
     wired = true;
@@ -131,37 +509,17 @@ export function bootTerminal() {
       const el = e.target as HTMLElement | null;
       const typing =
         el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
-      const open = isExpanded();
 
-      if (e.key === 'Escape' && open) {
+      if (e.key === 'Escape' && isExpanded()) {
         e.preventDefault();
         collapse();
         return;
       }
 
-      if (open && e.key === 'Tab' && panel.contains(document.activeElement)) {
-        const list = Array.from(
-          dock.querySelectorAll<HTMLElement>(
-            'button:not([disabled]), input:not([disabled])',
-          ),
-        );
-        if (!list.length) return;
-        const first = list[0];
-        const last = list[list.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-        return;
-      }
-
       if (e.key === '`' && !typing) {
         e.preventDefault();
-        if (!open) expand();
-        else focusDock();
+        if (!isExpanded()) expand();
+        else input.focus();
       }
     });
 

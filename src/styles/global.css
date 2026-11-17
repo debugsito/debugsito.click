@@ -648,15 +648,14 @@ a:hover {
 .term-dock {
   position: fixed !important;
   z-index: 80;
-  inset: auto 0 0 0;
+  left: 50%;
+  right: auto;
+  bottom: 0;
+  width: min(36rem, calc(100% - 1.5rem));
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  width: 100%;
-  max-width: min(36rem, calc(100% - 1.5rem));
-  margin-inline: auto;
-  left: 50%;
-  translate: -50% 0;
   font-family: var(--font-mono);
   font-size: 0.8rem;
   color: #d7dbdf;
@@ -718,10 +717,20 @@ a:hover {
 .term-dock__form {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.4rem;
   padding: 0.4rem 0.55rem;
   background: transparent;
   border-top: 1px solid #1c262c;
+}
+
+.term-dock__cwd {
+  flex-shrink: 0;
+  max-width: 7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #7adced;
+  font-size: 0.72rem;
 }
 
 .term-dock__grip {
@@ -796,11 +805,6 @@ a:hover {
   user-select: none;
 }
 
-.term-dock__form:focus-within .term-dock__hint,
-.term-dock__form:has(input:not(:placeholder-shown)) .term-dock__hint {
-  opacity: 0.35;
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -819,8 +823,8 @@ a:hover {
     border-inline: none;
   }
 
-  .term-dock__hint {
-    display: none;
+  .term-dock__cwd {
+    max-width: 4.5rem;
   }
 }
 

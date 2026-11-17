@@ -2,10 +2,11 @@
 title: Changelog del sitio
 ---
 
-## 2026-11-17 — shell en dock
+## 2026-11-17 — guest shell
 
-- Prompt discreto abajo; historial al expandir.
-- Persiste entre páginas (`transition:persist` + sessionStorage).
+- Dock centrado, minimizado por defecto.
+- Filesystem virtual + comandos Linux (ls/cd/cat/…) con snapshot de GitHub.
+- Útil de verdad; el humor sale al probar.
 
 ## 2026-11-17 — jugable + filtros
 
