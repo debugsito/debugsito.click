@@ -2,6 +2,11 @@
 title: Changelog del sitio
 ---
 
+## 2026-11-17 — mobile fix
+
+- Arcade reescrito (abre bien en móvil / tras navegación).
+- Header en grid, sin overflow horizontal, paneles y CTAs más limpios.
+
 ## 2026-11-17 — mobile
 
 - Safe-areas, nav compacta, CTAs táctiles, dock/arcade a pantalla estrecha.

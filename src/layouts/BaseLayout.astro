@@ -106,6 +106,7 @@ const og = new URL(ogImage, site).href;
         btn.textContent = `tema · ${label}`;
         btn.setAttribute('aria-pressed', s === 'dark' ? 'true' : 'false');
         btn.setAttribute('aria-label', `Tema actual: ${label}. Cambiar tema`);
+        btn.dataset.themeState = label;
       }
 
       function bindTheme() {
