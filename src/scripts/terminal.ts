@@ -202,24 +202,32 @@ export function bootTerminal() {
     });
   }
 
+  function openExternal(url: string) {
+    print(`opening ${url} …`);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   function openTarget(name: string) {
     const svc = services();
     if (svc[name]) {
-      print(`opening ${svc[name]} …`);
-      location.href = svc[name];
+      openExternal(svc[name]);
       return;
     }
     const repo = repoByName(name);
     if (repo) {
-      print(`opening ${repo.html_url} …`);
-      location.href = repo.html_url;
+      openExternal(repo.html_url);
       return;
     }
     const abs = resolvePath(cwd, name);
     const n = getNode(abs);
     if (n?.type === 'link') {
-      print(`opening ${n.target} …`);
-      location.href = n.target;
+      // anchors / rutas del mismo sitio: misma pestaña
+      if (n.target.startsWith('/') || n.target.startsWith('#')) {
+        print(`opening ${n.target} …`);
+        location.href = n.target;
+        return;
+      }
+      openExternal(n.target);
       return;
     }
     print(`open: desconocido «${name}» — prueba: open grifos | open salarios | ls ~/repos`);
