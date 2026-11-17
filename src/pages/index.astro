@@ -50,12 +50,14 @@ const repoLang = (name: string) =>
     <StatusStrip />
   </section>
 
-  <Reveal as="section" class="section" id="produccion">
+  <Reveal as="section" class="section section--rack" id="produccion">
     <div class="wrap">
-      <h2 class="section__title" id="prod-title">Rack en producción</h2>
-      <p class="section__lede">
-        Servicios que corro en casa. Públicos con URL; uno self-hosted sin exponer al internet.
-      </p>
+      <div class="section__head">
+        <h2 class="section__title" id="prod-title">Rack en producción</h2>
+        <p class="section__lede">
+          Servicios que corro en casa. Públicos con URL; uno self-hosted sin exponer al internet.
+        </p>
+      </div>
       <ul class="rack" data-rack>
         {
           projects.map((p, idx) => (
@@ -105,13 +107,15 @@ const repoLang = (name: string) =>
     <a href={`https://github.com/${profile.github}`} rel="noopener noreferrer">GitHub</a>
   </div>
 
-  <Reveal as="section" class="section" id="evolucion">
+  <Reveal as="section" class="section section--log" id="evolucion">
     <div class="wrap">
-      <h2 class="section__title" id="evo-title">journalctl — evolución</h2>
-      <p class="section__lede">
-        Desde PHP (2016) hasta agentes, Terraform y MCP. El rastro público y el laboral en la misma
-        línea de tiempo.
-      </p>
+      <div class="section__head">
+        <h2 class="section__title" id="evo-title">journalctl — evolución</h2>
+        <p class="section__lede">
+          Desde PHP (2016) hasta agentes, Terraform y MCP. El rastro público y el laboral en la misma
+          línea de tiempo.
+        </p>
+      </div>
       <ol class="timeline" data-timeline>
         {
           timeline.map((t) => (
@@ -128,12 +132,14 @@ const repoLang = (name: string) =>
     </div>
   </Reveal>
 
-  <Reveal as="section" class="section" id="opensource">
+  <Reveal as="section" class="section section--oss" id="opensource">
     <div class="wrap">
-      <h2 class="section__title" id="oss-title">Open source que comparto</h2>
-      <p class="section__lede">
-        Destacados curados más actividad reciente del snapshot de GitHub. Filtra por lenguaje.
-      </p>
+      <div class="section__head">
+        <h2 class="section__title" id="oss-title">Open source que comparto</h2>
+        <p class="section__lede">
+          Destacados curados más actividad reciente del snapshot de GitHub. Filtra por lenguaje.
+        </p>
+      </div>
       <div class="chips" role="toolbar" aria-label="Filtrar por lenguaje">
         {
           languages.map((lang, i) => (
@@ -148,46 +154,48 @@ const repoLang = (name: string) =>
           ))
         }
       </div>
-      <ul class="oss-grid">
+      <ul class="oss-list" data-oss-list>
         {
           repos.map((r) => (
-            <li class="oss-card" data-lang={repoLang(r.name)}>
-              <h3 class="item__title">
-                <a href={r.url} rel="noopener noreferrer">
-                  {r.name}
-                </a>
-              </h3>
-              <p>{r.blurb}</p>
-              <p class="item__meta">
-                <span>{repoLang(r.name)}</span>
-                <a href={r.url} rel="noopener noreferrer">
-                  {r.repo}
-                </a>
-              </p>
+            <li class="oss-row" data-lang={repoLang(r.name)}>
+              <span class="oss-row__lang">{repoLang(r.name)}</span>
+              <div class="oss-row__body">
+                <h3 class="item__title">
+                  <a href={r.url} rel="noopener noreferrer">
+                    {r.name}
+                  </a>
+                </h3>
+                <p>{r.blurb}</p>
+              </div>
+              <a class="oss-row__link" href={r.url} rel="noopener noreferrer">
+                {r.repo}
+              </a>
             </li>
           ))
         }
         {
           liveRepos.map((r) => (
-            <li class="oss-card oss-card--live" data-lang={r.language ?? 'Other'}>
-              <h3 class="item__title">
-                <a href={r.html_url} rel="noopener noreferrer">
-                  {r.name}
-                </a>
-              </h3>
-              <p>{r.description ?? 'Repositorio público en actividad reciente.'}</p>
-              <p class="item__meta">
-                <span>{r.language ?? '—'}</span>
-                <span>★ {r.stargazers_count}</span>
-                <span>upd {r.updated_at.slice(0, 10)}</span>
-              </p>
+            <li class="oss-row oss-row--live" data-lang={r.language ?? 'Other'}>
+              <span class="oss-row__lang">{r.language ?? '—'}</span>
+              <div class="oss-row__body">
+                <h3 class="item__title">
+                  <a href={r.html_url} rel="noopener noreferrer">
+                    {r.name}
+                  </a>
+                </h3>
+                <p>{r.description ?? 'Repositorio público en actividad reciente.'}</p>
+              </div>
+              <span class="oss-row__meta">
+                ★ {r.stargazers_count} · {r.updated_at.slice(0, 10)}
+              </span>
             </li>
           ))
         }
       </ul>
+      <p class="oss-empty" data-oss-empty hidden>Nada en este lenguaje en el snapshot actual.</p>
       {
         github.fetched_at && (
-          <p class="section__lede" style="margin-top:1.25rem;margin-bottom:0">
+          <p class="section__foot">
             Snapshot GitHub · {github.fetched_at.slice(0, 16).replace('T', ' ')} UTC
           </p>
         )
@@ -195,10 +203,12 @@ const repoLang = (name: string) =>
     </div>
   </Reveal>
 
-  <Reveal as="section" class="section" id="publicaciones">
+  <Reveal as="section" class="section section--pubs" id="publicaciones">
     <div class="wrap">
-      <h2 class="section__title" id="pubs-title">Papers en Springer</h2>
-      <p class="section__lede">Investigación aplicada en Machine Learning.</p>
+      <div class="section__head">
+        <h2 class="section__title" id="pubs-title">Papers en Springer</h2>
+        <p class="section__lede">Investigación aplicada en Machine Learning.</p>
+      </div>
       <ul class="list">
         {
           publications.map((p) => (
@@ -221,17 +231,23 @@ const repoLang = (name: string) =>
     </div>
   </Reveal>
 
-  <Reveal as="section" class="section" id="contacto">
+  <Reveal as="section" class="section section--contact" id="contacto">
     <div class="wrap">
-      <h2 class="section__title" id="contact-title">Abrir un canal</h2>
-      <p class="section__lede">{profile.summary}</p>
-      <div class="contact-row">
-        <a href={`mailto:${profile.email}`}>{profile.email}</a>
-        <a href={`https://linkedin.com/in/${profile.linkedin}`} rel="noopener noreferrer"
-          >linkedin/{profile.linkedin}</a
+      <div class="section__head">
+        <h2 class="section__title" id="contact-title">Abrir un canal</h2>
+        <p class="section__lede">{profile.summary}</p>
+      </div>
+      <div class="contact-panel">
+        <a class="contact-panel__link" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a
+          class="contact-panel__link"
+          href={`https://linkedin.com/in/${profile.linkedin}`}
+          rel="noopener noreferrer">linkedin/{profile.linkedin}</a
         >
-        <a href={`https://github.com/${profile.github}`} rel="noopener noreferrer"
-          >github/{profile.github}</a
+        <a
+          class="contact-panel__link"
+          href={`https://github.com/${profile.github}`}
+          rel="noopener noreferrer">github/{profile.github}</a
         >
       </div>
     </div>

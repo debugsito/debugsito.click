@@ -18,11 +18,15 @@ export function bootArcade() {
   let running = false;
   let paused = false;
   let score = 0;
-  let lives = 3;
-  let paddle = { x: canvas.width / 2 - 36, w: 72, h: 10 };
+  let lives = 5;
+  let combo = 0;
+  let paddle = { x: canvas.width / 2 - 58, w: 116, h: 12 };
   let packets: Packet[] = [];
   let spawn = 0;
+  let lastTs = 0;
   const keys = { left: false, right: false };
+  const padY = () => canvas.height - 26;
+  const hitPad = 14; // forgiving horizontal hitbox
 
   function paintBg() {
     ctx.fillStyle = '#0d1218';
@@ -38,64 +42,98 @@ export function bootArcade() {
   function draw() {
     paintBg();
     ctx.fillStyle = '#4ecfe3';
-    ctx.fillRect(paddle.x, canvas.height - 22, paddle.w, paddle.h);
+    ctx.fillRect(paddle.x, padY(), paddle.w, paddle.h);
+    ctx.fillStyle = 'rgba(78,207,227,0.25)';
+    ctx.fillRect(paddle.x - 2, padY() - 2, paddle.w + 4, paddle.h + 4);
     for (const p of packets) {
       ctx.beginPath();
       ctx.fillStyle = p.good ? '#3dba8a' : '#e07070';
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fill();
+      if (p.good) {
+        ctx.strokeStyle = 'rgba(61,186,138,0.45)';
+        ctx.stroke();
+      }
     }
     ctx.fillStyle = '#9aa0a8';
     ctx.font = '12px "IBM Plex Mono", monospace';
     ctx.fillText(`vidas ${lives}`, 12, 18);
+    if (combo > 1) ctx.fillText(`combo x${combo}`, 100, 18);
     if (paused) {
       ctx.fillStyle = 'rgba(13,18,24,0.65)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = '#eceae4';
-      ctx.fillText(lives <= 0 ? 'game over · reiniciar' : 'pausado', canvas.width / 2 - 70, canvas.height / 2);
+      ctx.fillText(
+        lives <= 0 ? 'game over · reiniciar' : 'pausado',
+        canvas.width / 2 - 70,
+        canvas.height / 2,
+      );
     }
   }
 
   function reset() {
     score = 0;
-    lives = 3;
+    lives = 5;
+    combo = 0;
     packets = [];
     spawn = 0;
     paddle.x = canvas.width / 2 - paddle.w / 2;
     scoreEl.textContent = 'score 0';
   }
 
+  function spawnInterval() {
+    // starts chill (~1.35s), ramps gently
+    return Math.max(720, 1350 - score * 18);
+  }
+
   function step(ts: number) {
     if (!running) return;
+    const dt = lastTs ? Math.min(32, ts - lastTs) / 16.67 : 1;
+    lastTs = ts;
+
     if (!paused && !reduce) {
-      if (keys.left) paddle.x = Math.max(8, paddle.x - 5.5);
-      if (keys.right) paddle.x = Math.min(canvas.width - paddle.w - 8, paddle.x + 5.5);
-      if (ts - spawn > 700) {
+      const speed = 7.2 * dt;
+      if (keys.left) paddle.x = Math.max(8, paddle.x - speed);
+      if (keys.right) paddle.x = Math.min(canvas.width - paddle.w - 8, paddle.x + speed);
+
+      if (ts - spawn > spawnInterval()) {
         spawn = ts;
+        const goodChance = Math.max(0.62, 0.82 - score * 0.004);
         packets.push({
-          x: 24 + Math.random() * (canvas.width - 48),
-          y: -10,
-          v: 1.6 + Math.random() * 2.2 + Math.min(score / 40, 2),
-          good: Math.random() > 0.32,
-          r: 6 + Math.random() * 3,
+          x: 28 + Math.random() * (canvas.width - 56),
+          y: -12,
+          v: 1.05 + Math.random() * 1.15 + Math.min(score / 55, 1.4),
+          good: Math.random() < goodChance,
+          r: 7 + Math.random() * 2.5,
         });
       }
+
       const next: Packet[] = [];
       for (const p of packets) {
-        p.y += p.v;
+        p.y += p.v * dt;
         const hit =
-          p.y + p.r >= canvas.height - 22 &&
-          p.x >= paddle.x &&
-          p.x <= paddle.x + paddle.w;
+          p.y + p.r >= padY() - 2 &&
+          p.y - p.r <= padY() + paddle.h + 6 &&
+          p.x >= paddle.x - hitPad &&
+          p.x <= paddle.x + paddle.w + hitPad;
+
         if (hit) {
           if (p.good) {
-            score += 1;
+            combo += 1;
+            score += combo > 2 ? 2 : 1;
             scoreEl.textContent = `score ${score}`;
-          } else lives -= 1;
+          } else {
+            combo = 0;
+            lives -= 1;
+          }
           continue;
         }
         if (p.y - p.r > canvas.height) {
-          if (p.good) lives -= 1;
+          if (p.good) {
+            combo = 0;
+            // missed deploy: only lose a life every other miss after warm-up
+            if (score >= 3) lives -= 1;
+          }
           continue;
         }
         next.push(p);
@@ -107,11 +145,10 @@ export function bootArcade() {
         pauseBtn.setAttribute('aria-pressed', 'true');
       }
     } else if (!paused && reduce) {
-      // static demo frame when reduced motion
       if (packets.length === 0) {
         packets = [
-          { x: 120, y: 80, v: 0, good: true, r: 7 },
-          { x: 280, y: 140, v: 0, good: false, r: 7 },
+          { x: 120, y: 80, v: 0, good: true, r: 8 },
+          { x: 280, y: 140, v: 0, good: false, r: 8 },
         ];
       }
     }
@@ -122,6 +159,7 @@ export function bootArcade() {
   function open() {
     reset();
     paused = reduce;
+    lastTs = 0;
     pauseBtn.textContent = paused ? (reduce ? 'modo estático' : 'reanudar') : 'pausar';
     pauseBtn.setAttribute('aria-pressed', paused ? 'true' : 'false');
     if (!dialog.open) dialog.showModal();
@@ -141,6 +179,7 @@ export function bootArcade() {
     if (lives <= 0) {
       reset();
       paused = false;
+      lastTs = 0;
       pauseBtn.textContent = 'pausar';
       pauseBtn.setAttribute('aria-pressed', 'false');
       return;

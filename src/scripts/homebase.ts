@@ -2,9 +2,47 @@ import { animate, inView, stagger } from 'motion';
 import { bootFx } from './fx';
 
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let filtersWired = false;
+
+function applyLangFilter(lang: string) {
+  const chips = document.querySelectorAll<HTMLButtonElement>('[data-lang-chip]');
+  const cards = document.querySelectorAll<HTMLElement>('[data-lang]');
+  const empty = document.querySelector<HTMLElement>('[data-oss-empty]');
+  let visible = 0;
+
+  chips.forEach((c) => {
+    c.setAttribute('aria-pressed', c.dataset.langChip === lang ? 'true' : 'false');
+  });
+
+  cards.forEach((card) => {
+    const match = lang === 'all' || card.dataset.lang === lang;
+    card.classList.toggle('is-out', !match);
+    card.toggleAttribute('hidden', !match);
+    if (match) visible += 1;
+  });
+
+  if (empty) empty.hidden = visible > 0;
+}
+
+function wireFilters() {
+  if (filtersWired) return;
+  filtersWired = true;
+  document.addEventListener('click', (e) => {
+    const chip = (e.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-lang-chip]');
+    if (!chip) return;
+    e.preventDefault();
+    applyLangFilter(chip.dataset.langChip || 'all');
+  });
+}
 
 export function bootHomebase() {
   bootFx();
+  wireFilters();
+  applyLangFilter(
+    document.querySelector<HTMLButtonElement>('[data-lang-chip][aria-pressed="true"]')?.dataset
+      .langChip || 'all',
+  );
+
   const reveals = document.querySelectorAll<HTMLElement>('[data-reveal]');
   if (!reduce) {
     reveals.forEach((el) => {
@@ -54,19 +92,6 @@ export function bootHomebase() {
       { amount: 0.15 },
     );
   }
-
-  const chips = document.querySelectorAll<HTMLButtonElement>('[data-lang-chip]');
-  const cards = document.querySelectorAll<HTMLElement>('[data-lang]');
-  chips.forEach((chip) => {
-    chip.onclick = () => {
-      const lang = chip.dataset.langChip || 'all';
-      chips.forEach((c) => c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'));
-      cards.forEach((card) => {
-        const match = lang === 'all' || card.dataset.lang === lang;
-        card.hidden = !match;
-      });
-    };
-  });
 }
 
 bootHomebase();

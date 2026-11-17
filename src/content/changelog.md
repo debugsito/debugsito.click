@@ -2,6 +2,13 @@
 title: Changelog del sitio
 ---
 
+## 2026-11-17 — jugable + filtros
+
+- Arcade más suave (paddle grande, 5 vidas, combo).
+- Filtros OSS por lenguaje arreglados.
+- Mesh araña que cede al mouse; glow mínimo.
+- Secciones reformateadas (lista OSS, paneles).
+
 ## 2026-11-17 — homebase jugable
 
 - Terminal reparada (z-index / position).
