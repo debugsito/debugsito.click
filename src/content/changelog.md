@@ -2,6 +2,11 @@
 title: Changelog del sitio
 ---
 
+## 2026-11-17 — mobile
+
+- Safe-areas, nav compacta, CTAs táctiles, dock/arcade a pantalla estrecha.
+- Input shell ≥16px (sin zoom iOS); chips con scroll horizontal.
+
 ## 2026-11-17 — guest shell
 
 - Dock centrado, minimizado por defecto.

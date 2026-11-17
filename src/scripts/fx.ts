@@ -101,6 +101,9 @@ export function bootFx() {
 
   if (reduce) return;
 
+  const coarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (coarse) return;
+
   document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((el) => {
     el.onpointermove = (e) => {
       const r = el.getBoundingClientRect();
