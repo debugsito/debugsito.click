@@ -1,0 +1,19 @@
+{
+  "fetched_at": "2026-11-17T06:21:39.094Z",
+  "checks": [
+    {
+      "id": "grifos",
+      "label": "grifos",
+      "url": "https://grifos.debugsito.click",
+      "ok": true,
+      "http_status": 200
+    },
+    {
+      "id": "salarios",
+      "label": "salarios",
+      "url": "https://salarios.debugsito.click",
+      "ok": true,
+      "http_status": 200
+    }
+  ]
+}

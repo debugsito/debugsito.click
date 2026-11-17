@@ -8,11 +8,12 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/fetch-github.mjs && node scripts/generate-og.mjs",
+    "prebuild": "node scripts/fetch-github.mjs && node scripts/fetch-status.mjs && node scripts/generate-og.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "fetch:github": "node scripts/fetch-github.mjs",
+    "fetch:status": "node scripts/fetch-status.mjs",
     "og": "node scripts/generate-og.mjs"
   },
   "dependencies": {

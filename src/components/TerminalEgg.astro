@@ -1,11 +1,23 @@
 ---
 ---
 
-<p class="term__hint" aria-hidden="true">` o / · terminal</p>
-<div class="term" id="term" role="dialog" aria-label="Terminal" aria-hidden="true">
+<div
+  class="term"
+  id="term"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Terminal"
+  aria-hidden="true"
+  hidden
+>
   <div class="term__bar">
     <span>debugsito://shell</span>
-    <button type="button" class="icon-btn" data-term-close style="background:#1a1f27;color:#d7dbdf;border-color:#2c333d">
+    <button
+      type="button"
+      class="icon-btn"
+      data-term-close
+      style="background:#1a1f27;color:#d7dbdf;border-color:#2c333d"
+    >
       esc
     </button>
   </div>
@@ -21,7 +33,9 @@
   const out = document.getElementById('term-out');
   const form = document.getElementById('term-form') as HTMLFormElement | null;
   const input = document.getElementById('term-input') as HTMLInputElement | null;
-  const closeBtn = document.querySelector('[data-term-close]');
+  const closeBtn = document.querySelector('[data-term-close]') as HTMLButtonElement | null;
+  const openBtns = document.querySelectorAll('[data-term-open]');
+  let lastOpener: HTMLElement | null = null;
 
   const help = `comandos:
   help                 esta ayuda
@@ -33,10 +47,26 @@
   clear                limpia
   exit                 cierra`;
 
-  function openTerm() {
+  function setExpanded(open: boolean) {
+    openBtns.forEach((b) => b.setAttribute('aria-expanded', open ? 'true' : 'false'));
+  }
+
+  function focusables(): HTMLElement[] {
+    if (!term) return [];
+    return Array.from(
+      term.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+  }
+
+  function openTerm(opener?: HTMLElement) {
     if (!term || !out || !input) return;
+    lastOpener = opener ?? (document.activeElement as HTMLElement | null);
+    term.hidden = false;
     term.classList.add('is-open');
     term.setAttribute('aria-hidden', 'false');
+    setExpanded(true);
     if (!out.textContent) out.textContent = 'panel de control · escribe help\n';
     input.focus();
   }
@@ -45,6 +75,9 @@
     if (!term) return;
     term.classList.remove('is-open');
     term.setAttribute('aria-hidden', 'true');
+    term.hidden = true;
+    setExpanded(false);
+    lastOpener?.focus?.();
   }
 
   function println(line: string) {
@@ -72,24 +105,42 @@
       if (t === 'grifos') location.href = 'https://grifos.debugsito.click';
       else if (t === 'salarios') location.href = 'https://salarios.debugsito.click';
       else println('uso: open grifos|salarios');
-    } else println(`comando desconocido: ${cmd}`);
+    } else println(`comando desconocido: ${cmd}. escribe help`);
   }
 
   document.addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
     const typing =
       t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' && term?.classList.contains('is-open')) {
+      e.preventDefault();
       closeTerm();
       return;
     }
+    if (term?.classList.contains('is-open') && e.key === 'Tab') {
+      const list = focusables();
+      if (list.length === 0) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+      return;
+    }
     if (typing && t !== input) return;
-    if ((e.key === '`' || e.key === '/') && !term?.classList.contains('is-open')) {
+    if (e.key === '`' && !term?.classList.contains('is-open')) {
       e.preventDefault();
       openTerm();
     }
   });
 
+  openBtns.forEach((b) =>
+    b.addEventListener('click', () => openTerm(b as HTMLElement)),
+  );
   closeBtn?.addEventListener('click', closeTerm);
   form?.addEventListener('submit', (e) => {
     e.preventDefault();

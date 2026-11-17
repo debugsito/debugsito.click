@@ -1,10 +1,10 @@
 ---
 const links = [
-  { href: '/#produccion', label: 'Producción', extra: true },
-  { href: '/#evolucion', label: 'Evolución', extra: true },
-  { href: '/#repos', label: 'Repos', extra: true },
+  { href: '/#produccion', label: 'Producción', desk: true },
+  { href: '/#evolucion', label: 'Evolución', desk: true },
+  { href: '/#contacto', label: 'Contacto' },
   { href: '/now', label: 'Ahora' },
-  { href: '/changelog', label: 'Changelog' },
+  { href: '/changelog', label: 'Changelog', desk: true },
 ];
 ---
 
@@ -14,13 +14,16 @@ const links = [
     <nav class="nav" aria-label="Principal">
       {
         links.map((l) => (
-          <a class={l.extra ? 'nav__extra' : undefined} href={l.href}>
+          <a class={l.desk ? 'nav__desk' : undefined} href={l.href}>
             {l.label}
           </a>
         ))
       }
-      <button type="button" class="icon-btn" data-theme-toggle aria-label="Cambiar tema">
-        tema
+      <button type="button" class="icon-btn" data-theme-toggle aria-pressed="false">
+        tema · auto
+      </button>
+      <button type="button" class="icon-btn" data-term-open aria-controls="term" aria-expanded="false">
+        terminal
       </button>
     </nav>
   </div>

@@ -34,6 +34,7 @@ const og = new URL(ogImage, site).href;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="light dark" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -55,14 +56,12 @@ const og = new URL(ogImage, site).href;
     <script is:inline>
       (function () {
         try {
-          var stored = localStorage.getItem('theme');
-          var dark = stored
-            ? stored === 'dark'
-            : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-        } catch (_) {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
+          var meta = document.querySelector('meta[name="color-scheme"]');
+          var stored = localStorage.getItem('color-scheme');
+          if (stored === 'light' || stored === 'dark' || stored === 'light dark') {
+            if (meta) meta.content = stored;
+          }
+        } catch (_) {}
       })();
     </script>
   </head>
@@ -75,16 +74,44 @@ const og = new URL(ogImage, site).href;
     <SiteFooter />
     <TerminalEgg />
     <script>
+      function schemeMeta() {
+        return document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement | null;
+      }
+
+      function currentScheme(): 'light' | 'dark' | 'system' {
+        const c = schemeMeta()?.content;
+        if (c === 'light' || c === 'dark') return c;
+        return 'system';
+      }
+
+      function applyScheme(next: 'light' | 'dark' | 'system') {
+        const meta = schemeMeta();
+        if (!meta) return;
+        meta.content = next === 'system' ? 'light dark' : next;
+        try {
+          localStorage.setItem('color-scheme', meta.content);
+        } catch (_) {}
+        syncToggle();
+      }
+
+      function syncToggle() {
+        const btn = document.querySelector('[data-theme-toggle]') as HTMLButtonElement | null;
+        if (!btn) return;
+        const s = currentScheme();
+        const label = s === 'dark' ? 'oscuro' : s === 'light' ? 'claro' : 'auto';
+        btn.textContent = `tema · ${label}`;
+        btn.setAttribute('aria-pressed', s === 'dark' ? 'true' : 'false');
+        btn.setAttribute('aria-label', `Tema actual: ${label}. Cambiar tema`);
+      }
+
       document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
         btn.addEventListener('click', () => {
-          const root = document.documentElement;
-          const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-          root.setAttribute('data-theme', next);
-          try {
-            localStorage.setItem('theme', next);
-          } catch (_) {}
+          const s = currentScheme();
+          applyScheme(s === 'light' ? 'dark' : s === 'dark' ? 'system' : 'light');
         });
       });
+
+      syncToggle();
     </script>
   </body>
 </html>

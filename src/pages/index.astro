@@ -10,18 +10,23 @@ import {
   certs,
   github,
   statusLabel,
+  certScheduleLabel,
 } from '../lib/data';
 
 const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
+const activeCerts = certs.filter((c) => c.status === 'in_progress' || c.status === 'earned');
+const pendingCerts = certs.filter((c) => c.status === 'pending');
 ---
 
 <BaseLayout title={`${profile.handle} · ${profile.role}`} description={profile.tagline}>
   <section class="wrap hero" aria-labelledby="hero-brand">
+    <p class="hero__name">{profile.name}</p>
     <p class="hero__meta">{profile.role} · {profile.location}</p>
     <h1 class="hero__brand" id="hero-brand">{profile.handle}</h1>
     <p class="hero__tagline">{profile.tagline}</p>
     <div class="cta-row">
-      <a class="btn" href="#produccion">Proyectos vivos</a>
+      <a class="btn" href="#produccion">Ver producción</a>
+      <a class="btn btn--ghost" href={`mailto:${profile.email}`}>Escribirme</a>
       <a class="btn btn--ghost" href={`https://github.com/${profile.github}`} rel="noopener noreferrer"
         >GitHub</a
       >
@@ -31,13 +36,11 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
 
   <section class="section" id="produccion" aria-labelledby="prod-title">
     <div class="wrap">
-      <p class="section__eyebrow">01 · en producción</p>
       <h2 class="section__title" id="prod-title">Lo que está corriendo</h2>
       <p class="section__lede">
-        Servicios que mantengo en mi servidor. El panel de arriba comprueba los que tienen URL
-        pública.
+        Servicios que mantengo en mi servidor: públicos con URL y uno self-hosted sin exponer.
       </p>
-      <ul class="list list--projects">
+      <ul class="list">
         {
           projects.map((p) => (
             <li class="item">
@@ -64,7 +67,7 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
                   </a>
                 )}
                 <a href={`https://github.com/${p.repo}`} rel="noopener noreferrer">
-                  github.com/{p.repo}
+                  código
                 </a>
               </p>
             </li>
@@ -74,13 +77,21 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
     </div>
   </section>
 
+  <div class="wrap contact-band" aria-label="Contacto rápido">
+    <span>Hablar:</span>
+    <a href={`mailto:${profile.email}`}>{profile.email}</a>
+    <a href={`https://linkedin.com/in/${profile.linkedin}`} rel="noopener noreferrer"
+      >LinkedIn</a
+    >
+    <a href={`https://github.com/${profile.github}`} rel="noopener noreferrer">GitHub</a>
+  </div>
+
   <section class="section" id="evolucion" aria-labelledby="evo-title">
     <div class="wrap">
-      <p class="section__eyebrow">02 · evolución</p>
       <h2 class="section__title" id="evo-title">De PHP a agentes e infraestructura</h2>
       <p class="section__lede">
-        El recorrido desde 2016: trabajos, repos y papers. No es una lista de skills; es la línea
-        de tiempo.
+        El recorrido desde 2016: trabajos, repos y papers. Una línea de tiempo, no una lista de
+        skills.
       </p>
       <ol class="timeline" data-timeline>
         {
@@ -97,8 +108,8 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
       </ol>
       {
         github.fetched_at && github.repos.length > 0 && (
-          <p class="section__lede" style="margin-top:2rem">
-            Última actividad pública en GitHub (build {github.fetched_at.slice(0, 10)}):{' '}
+          <p class="section__lede" style="margin-top:1.75rem;margin-bottom:0">
+            Actividad pública reciente (build {github.fetched_at.slice(0, 10)}):{' '}
             {github.repos
               .slice(0, 5)
               .map((r) => r.name)
@@ -112,9 +123,10 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
 
   <section class="section" id="repos" aria-labelledby="repos-title">
     <div class="wrap">
-      <p class="section__eyebrow">03 · repos</p>
-      <h2 class="section__title" id="repos-title">Destacados</h2>
-      <p class="section__lede">Selección curada. El resto vive en GitHub.</p>
+      <h2 class="section__title" id="repos-title">Repos que comparto</h2>
+      <p class="section__lede">
+        Kit de agentes, API SUNAT y trabajo de datos. Lo demás vive en GitHub.
+      </p>
       <ul class="list">
         {
           repos.map((r) => (
@@ -139,8 +151,8 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
 
   <section class="section" id="publicaciones" aria-labelledby="pubs-title">
     <div class="wrap">
-      <p class="section__eyebrow">04 · publicaciones</p>
       <h2 class="section__title" id="pubs-title">Investigación aplicada</h2>
+      <p class="section__lede">Dos capítulos en Springer sobre Machine Learning.</p>
       <ul class="list">
         {
           publications.map((p) => (
@@ -165,21 +177,19 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
 
   <section class="section" id="certificaciones" aria-labelledby="certs-title">
     <div class="wrap">
-      <p class="section__eyebrow">05 · ruta 2026–2028</p>
-      <h2 class="section__title" id="certs-title">Certificaciones</h2>
+      <h2 class="section__title" id="certs-title">Ruta de certificaciones 2026–2028</h2>
       <p class="section__lede">
-        Estado editable en <code>src/data/certs.json</code>. Ninguna figura como obtenida hasta
-        confirmarlo.
+        Primero lo que está en curso. Ninguna figura como obtenida hasta confirmarlo.
       </p>
       <div class="certs">
         {
-          certs.map((c) => (
-            <article class="cert">
+          activeCerts.map((c) => (
+            <article class="cert cert--focus">
               <span class="cert__code">{c.code}</span>
               <div>
                 <h3 class="cert__name">{c.name}</h3>
                 <p class="cert__org">
-                  {c.org} · examen {c.exam}
+                  {c.org} · {certScheduleLabel(c)}
                 </p>
               </div>
               <span
@@ -198,12 +208,32 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
           ))
         }
       </div>
+      {
+        pendingCerts.length > 0 && (
+          <details class="certs-more">
+            <summary>Ver las {pendingCerts.length} pendientes del plan</summary>
+            <div class="certs">
+              {pendingCerts.map((c) => (
+                <article class="cert">
+                  <span class="cert__code">{c.code}</span>
+                  <div>
+                    <h3 class="cert__name">{c.name}</h3>
+                    <p class="cert__org">
+                      {c.org} · {certScheduleLabel(c)}
+                    </p>
+                  </div>
+                  <span class="badge badge--muted">{statusLabel[c.status]}</span>
+                </article>
+              ))}
+            </div>
+          </details>
+        )
+      }
     </div>
   </section>
 
   <section class="section" id="contacto" aria-labelledby="contact-title">
     <div class="wrap">
-      <p class="section__eyebrow">06 · contacto</p>
       <h2 class="section__title" id="contact-title">Hablemos</h2>
       <p class="section__lede">{profile.summary}</p>
       <div class="contact-row">
@@ -221,7 +251,10 @@ const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
 
 <script>
   const items = document.querySelectorAll('[data-timeline] .timeline__item');
-  if ('IntersectionObserver' in window) {
+  const viewTimeline = CSS.supports?.('animation-timeline: view()') ?? false;
+  if (viewTimeline) {
+    items.forEach((el) => el.classList.add('is-in'));
+  } else if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
