@@ -75,7 +75,7 @@ export function bootTerminal() {
     if (!cmd) return;
     if (cmd === 'help') println(help);
     else if (cmd === 'ls')
-      println('produccion  evolucion  opensource  publicaciones  contacto  now  changelog  play');
+      println('produccion  bitacora  opensource  publicaciones  contacto  now  changelog  play');
     else if (cmd === 'now') location.href = '/now';
     else if (cmd === 'changelog') location.href = '/changelog';
     else if (cmd === 'whoami')

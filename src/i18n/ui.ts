@@ -6,7 +6,7 @@ export const ui = {
     'nav.now': 'Ahora',
     'nav.changelog': 'Changelog',
     'nav.production': 'En producción',
-    'nav.evolution': 'Evolución',
+    'nav.evolution': 'Bitácora',
     'nav.repos': 'Repos',
     'nav.pubs': 'Publicaciones',
     'nav.certs': 'Certificaciones',
