@@ -29,6 +29,10 @@ const repoLang = (name: string) =>
     <NetworkMesh />
   </div>
 
+  <div class="pointer-stage" data-pointer-stage>
+    <div class="pointer-stage__glow" aria-hidden="true"></div>
+  </div>
+
   <section class="wrap hero" aria-labelledby="hero-brand">
     <OpsTicker />
     <p class="hero__name">{profile.name}</p>
@@ -38,6 +42,7 @@ const repoLang = (name: string) =>
     <div class="cta-row">
       <a class="btn" href="#produccion">Entrar al rack</a>
       <a class="btn btn--ghost" href="#opensource">Open source</a>
+      <button type="button" class="btn btn--ghost" data-arcade-open>Jugar arcade</button>
       <a class="btn btn--ghost" href={`https://github.com/${profile.github}`} rel="noopener noreferrer"
         >GitHub</a
       >
@@ -54,7 +59,7 @@ const repoLang = (name: string) =>
       <ul class="rack" data-rack>
         {
           projects.map((p, idx) => (
-            <li class="rack__unit">
+            <li class="rack__unit" data-tilt>
               <span class="rack__u" aria-hidden="true">
                 U{String(idx + 1).padStart(2, '0')}
               </span>

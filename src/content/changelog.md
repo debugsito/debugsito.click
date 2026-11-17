@@ -2,6 +2,12 @@
 title: Changelog del sitio
 ---
 
+## 2026-11-17 — homebase jugable
+
+- Terminal reparada (z-index / position).
+- Spotlight del pointer, tilt en el rack, acentos cyan/magenta.
+- Mini-arcade «deploy dodge» (botón arcade o `play` en la shell).
+
 ## 2026-11-17 — homebase dinámica
 
 - Homebase DevOps: ticker Lima, mesh de red, rack de producción.

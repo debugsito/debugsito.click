@@ -1,0 +1,23 @@
+---
+---
+
+<dialog class="arcade" id="arcade" aria-labelledby="arcade-title">
+  <div class="arcade__bar">
+    <p id="arcade-title" class="arcade__title">deploy dodge</p>
+    <div class="arcade__meta">
+      <span data-arcade-score>score 0</span>
+      <button type="button" class="icon-btn" data-arcade-pause aria-pressed="false">pausar</button>
+      <button type="button" class="icon-btn" data-arcade-close>cerrar</button>
+    </div>
+  </div>
+  <canvas id="arcade-canvas" class="arcade__canvas" width="480" height="320" aria-label="Mini juego: mueve con mouse, flechas o A/D"></canvas>
+  <p class="arcade__help">
+    Atrapa paquetes verdes (deploys). Evita los rojos (incidentes). Mouse / flechas / A·D · espacio = pausa.
+  </p>
+</dialog>
+
+<script>
+  import { bootArcade } from '../scripts/arcade';
+  bootArcade();
+  document.addEventListener('astro:page-load', () => bootArcade());
+</script>

@@ -1,8 +1,10 @@
 import { animate, inView, stagger } from 'motion';
+import { bootFx } from './fx';
 
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function bootHomebase() {
+  bootFx();
   const reveals = document.querySelectorAll<HTMLElement>('[data-reveal]');
   if (!reduce) {
     reveals.forEach((el) => {

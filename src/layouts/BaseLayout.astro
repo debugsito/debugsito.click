@@ -9,6 +9,7 @@ import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import TerminalEgg from '../components/TerminalEgg.astro';
+import Arcade from '../components/Arcade.astro';
 
 interface Props {
   title: string;
@@ -75,6 +76,7 @@ const og = new URL(ogImage, site).href;
     </main>
     <SiteFooter />
     <TerminalEgg />
+    <Arcade />
     <script>
       function schemeMeta() {
         return document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement | null;

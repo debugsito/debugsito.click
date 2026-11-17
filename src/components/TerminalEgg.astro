@@ -8,16 +8,11 @@
   aria-modal="true"
   aria-label="Terminal"
   aria-hidden="true"
-  hidden
+  data-open="false"
 >
   <div class="term__bar">
     <span>debugsito://shell</span>
-    <button
-      type="button"
-      class="icon-btn"
-      data-term-close
-      style="background:#1a1f27;color:#d7dbdf;border-color:#2c333d"
-    >
+    <button type="button" class="icon-btn term__close" data-term-close style="background:#1a1f27;color:#d7dbdf;border-color:#2c333d">
       esc
     </button>
   </div>
@@ -29,128 +24,7 @@
 </div>
 
 <script>
-  const term = document.getElementById('term');
-  const out = document.getElementById('term-out');
-  const form = document.getElementById('term-form') as HTMLFormElement | null;
-  const input = document.getElementById('term-input') as HTMLInputElement | null;
-  const closeBtn = document.querySelector('[data-term-close]') as HTMLButtonElement | null;
-  const openBtns = document.querySelectorAll('[data-term-open]');
-  let lastOpener: HTMLElement | null = null;
-
-  const help = `comandos:
-  help                 esta ayuda
-  ls                   secciones
-  now                  abre /now
-  changelog            abre /changelog
-  open grifos|salarios abre el proyecto
-  whoami               quién soy
-  clear                limpia
-  exit                 cierra`;
-
-  function setExpanded(open: boolean) {
-    openBtns.forEach((b) => b.setAttribute('aria-expanded', open ? 'true' : 'false'));
-  }
-
-  function focusables(): HTMLElement[] {
-    if (!term) return [];
-    return Array.from(
-      term.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
-      ),
-    );
-  }
-
-  function openTerm(opener?: HTMLElement) {
-    if (!term || !out || !input) return;
-    lastOpener = opener ?? (document.activeElement as HTMLElement | null);
-    term.hidden = false;
-    term.classList.add('is-open');
-    term.setAttribute('aria-hidden', 'false');
-    setExpanded(true);
-    if (!out.textContent) out.textContent = 'panel de control · escribe help\n';
-    input.focus();
-  }
-
-  function closeTerm() {
-    if (!term) return;
-    term.classList.remove('is-open');
-    term.setAttribute('aria-hidden', 'true');
-    term.hidden = true;
-    setExpanded(false);
-    lastOpener?.focus?.();
-  }
-
-  function println(line: string) {
-    if (!out) return;
-    out.textContent += line + '\n';
-    out.scrollTop = out.scrollHeight;
-  }
-
-  function run(raw: string) {
-    const cmd = raw.trim().toLowerCase();
-    println('$ ' + raw);
-    if (!cmd) return;
-    if (cmd === 'help') println(help);
-    else if (cmd === 'ls')
-      println('produccion  evolucion  opensource  publicaciones  contacto  now  changelog');
-    else if (cmd === 'now') location.href = '/now';
-    else if (cmd === 'changelog') location.href = '/changelog';
-    else if (cmd === 'whoami')
-      println('Carlos Sebastian Ramos Flores · debugsito · Senior DevOps Engineer · Lima');
-    else if (cmd === 'clear') {
-      if (out) out.textContent = '';
-    } else if (cmd === 'exit' || cmd === 'q') closeTerm();
-    else if (cmd.startsWith('open ')) {
-      const t = cmd.slice(5).trim();
-      if (t === 'grifos') location.href = 'https://grifos.debugsito.click';
-      else if (t === 'salarios') location.href = 'https://salarios.debugsito.click';
-      else println('uso: open grifos|salarios');
-    } else println(`comando desconocido: ${cmd}. escribe help`);
-  }
-
-  document.addEventListener('keydown', (e) => {
-    const t = e.target as HTMLElement | null;
-    const typing =
-      t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
-    if (e.key === 'Escape' && term?.classList.contains('is-open')) {
-      e.preventDefault();
-      closeTerm();
-      return;
-    }
-    if (term?.classList.contains('is-open') && e.key === 'Tab') {
-      const list = focusables();
-      if (list.length === 0) return;
-      const first = list[0];
-      const last = list[list.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-      return;
-    }
-    if (typing && t !== input) return;
-    if (e.key === '`' && !term?.classList.contains('is-open')) {
-      e.preventDefault();
-      openTerm();
-    }
-  });
-
-  function bind() {
-    document.querySelectorAll('[data-term-open]').forEach((b) => {
-      (b as HTMLButtonElement).onclick = () => openTerm(b as HTMLElement);
-    });
-    document.querySelector('[data-term-close]')?.addEventListener('click', closeTerm);
-    form?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!input) return;
-      run(input.value);
-      input.value = '';
-    });
-  }
-
-  bind();
-  document.addEventListener('astro:page-load', bind);
+  import { bootTerminal } from '../scripts/terminal';
+  bootTerminal();
+  document.addEventListener('astro:page-load', () => bootTerminal());
 </script>
