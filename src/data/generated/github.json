@@ -1,6 +1,16 @@
 {
-  "fetched_at": "2026-11-17T06:07:36.494Z",
+  "fetched_at": "2026-11-17T06:08:27.208Z",
   "repos": [
+    {
+      "created_at": "2026-11-17T06:07:48Z",
+      "description": "Landing personal: lo que construyo y lo que está en producción",
+      "html_url": "https://github.com/debugsito/debugsito.click",
+      "language": "Astro",
+      "name": "debugsito.click",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2026-11-17T06:07:59Z"
+    },
     {
       "created_at": "2026-10-26T04:32:32Z",
       "description": "Precios de combustible en Lima y Callao: el grifo que más te conviene cerca de ti",
@@ -110,16 +120,6 @@
       "stargazers_count": 0,
       "topics": [],
       "updated_at": "2025-08-15T02:08:17Z"
-    },
-    {
-      "created_at": "2025-02-26T19:55:47Z",
-      "description": null,
-      "html_url": "https://github.com/debugsito/inesdi-docker-v1",
-      "language": "JavaScript",
-      "name": "inesdi-docker-v1",
-      "stargazers_count": 0,
-      "topics": [],
-      "updated_at": "2025-02-26T19:56:41Z"
     }
   ]
 }
