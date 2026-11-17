@@ -11,7 +11,6 @@ Landing personal de **debugsito** (Carlos Sebastian Ramos Flores). Sitio estáti
 | Repos destacados | `src/data/repos.yaml` |
 | Línea de tiempo / evolución | `src/data/timeline.yaml` |
 | Publicaciones | `src/data/publications.yaml` |
-| Certificaciones (dato privado; **no se muestra** en la web) | `src/data/certs.json` |
 | /now | `src/content/now.md` |
 | /changelog | `src/content/changelog.md` |
 | Actividad GitHub (generado en build) | `src/data/generated/github.json` |
