@@ -1,10 +1,10 @@
 ---
 const links = [
-  { href: '/#produccion', label: 'Producción', desk: true },
-  { href: '/#evolucion', label: 'Evolución', desk: true },
+  { href: '/#produccion', label: 'Producción' },
+  { href: '/#evolucion', label: 'Evolución' },
   { href: '/#contacto', label: 'Contacto' },
   { href: '/now', label: 'Ahora' },
-  { href: '/changelog', label: 'Changelog', desk: true },
+  { href: '/changelog', label: 'Changelog', optional: true },
 ];
 ---
 
@@ -14,7 +14,7 @@ const links = [
     <nav class="nav" aria-label="Principal">
       {
         links.map((l) => (
-          <a class={l.desk ? 'nav__desk' : undefined} href={l.href}>
+          <a class={l.optional ? 'nav__desk-optional' : undefined} href={l.href}>
             {l.label}
           </a>
         ))

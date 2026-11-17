@@ -93,7 +93,7 @@ a:hover {
 }
 
 .section {
-  padding-block: clamp(2.75rem, 7vw, 4.75rem);
+  padding-block: clamp(2rem, 5.5vw, 3.5rem);
   border-top: 1px solid var(--line);
 }
 
@@ -310,29 +310,12 @@ a:hover {
   background: var(--live);
 }
 
-.led--live:not(.led--build) {
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--live) 35%, transparent);
-  animation: pulse 2.2s ease-out infinite;
-}
-
 .led--down {
   background: var(--danger);
 }
 
 .led--unknown {
   background: var(--ink-muted);
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--live) 35%, transparent);
-  }
-  70% {
-    box-shadow: 0 0 0 8px transparent;
-  }
-  100% {
-    box-shadow: 0 0 0 0 transparent;
-  }
 }
 
 .list {
@@ -415,7 +398,7 @@ a:hover {
 
 .timeline__item {
   position: relative;
-  padding: 0 0 1.6rem 1.35rem;
+  padding: 0 0 1.15rem 1.35rem;
   opacity: 0;
   transform: translateY(8px);
   transition:
@@ -636,8 +619,13 @@ a:hover {
 }
 
 @media (max-width: 720px) {
-  .nav .nav__desk {
+  .nav .nav__desk-optional {
     display: none;
+  }
+
+  .nav {
+    gap: 0.3rem 0.7rem;
+    font-size: 0.75rem;
   }
 
   .cert {
@@ -652,8 +640,7 @@ a:hover {
   }
 
   .hero,
-  .timeline__item,
-  .led--live {
+  .timeline__item {
     animation: none;
     transition: none;
     opacity: 1;
