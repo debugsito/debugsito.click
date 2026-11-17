@@ -1,0 +1,24 @@
+name: Carlos Sebastian Ramos Flores
+handle: debugsito
+role: Senior DevOps Engineer
+location: Lima, Perú
+tagline: Construyo plataformas, pipelines y agentes. Esto es lo que tengo en producción.
+summary: >
+  Ingeniero DevOps Senior con trayectoria en tecnología desde 2016. Combino desarrollo,
+  arquitectura cloud y automatización en los sectores financiero y de pagos. Hoy lidero
+  la automatización DevOps de una plataforma corporativa de agentes de IA sobre Azure.
+email: csramosflores@gmail.com
+linkedin: carlosrde
+github: debugsito
+education:
+  - institution: Universidad ESAN
+    area: Bachiller en Ingeniería de Sistemas
+  - institution: Instituto Tecnológico TECSUP
+    area: Título Profesional en Redes y Comunicaciones de Datos
+live_checks:
+  - id: grifos
+    label: grifos
+    url: https://grifos.debugsito.click
+  - id: salarios
+    label: salarios
+    url: https://salarios.debugsito.click

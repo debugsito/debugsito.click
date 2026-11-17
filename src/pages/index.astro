@@ -1,0 +1,240 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import StatusStrip from '../components/StatusStrip.astro';
+import {
+  profile,
+  projects,
+  repos,
+  publications,
+  timeline,
+  certs,
+  github,
+  statusLabel,
+} from '../lib/data';
+
+const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
+---
+
+<BaseLayout title={`${profile.handle} · ${profile.role}`} description={profile.tagline}>
+  <section class="wrap hero" aria-labelledby="hero-brand">
+    <p class="hero__meta">{profile.role} · {profile.location}</p>
+    <h1 class="hero__brand" id="hero-brand">{profile.handle}</h1>
+    <p class="hero__tagline">{profile.tagline}</p>
+    <div class="cta-row">
+      <a class="btn" href="#produccion">Proyectos vivos</a>
+      <a class="btn btn--ghost" href={`https://github.com/${profile.github}`} rel="noopener noreferrer"
+        >GitHub</a
+      >
+    </div>
+    <StatusStrip />
+  </section>
+
+  <section class="section" id="produccion" aria-labelledby="prod-title">
+    <div class="wrap">
+      <p class="section__eyebrow">01 · en producción</p>
+      <h2 class="section__title" id="prod-title">Lo que está corriendo</h2>
+      <p class="section__lede">
+        Servicios que mantengo en mi servidor. El panel de arriba comprueba los que tienen URL
+        pública.
+      </p>
+      <ul class="list list--projects">
+        {
+          projects.map((p) => (
+            <li class="item">
+              <div class="item__meta">
+                <span class:list={['badge', p.status === 'live' ? 'badge--live' : 'badge--self']}>
+                  {p.status === 'live' ? 'live' : 'self-hosted'}
+                </span>
+                <span>{p.repo}</span>
+              </div>
+              <h3 class="item__title">
+                {p.url ? (
+                  <a href={p.url} rel="noopener noreferrer">
+                    {p.name}
+                  </a>
+                ) : (
+                  p.name
+                )}
+              </h3>
+              <p>{p.blurb}</p>
+              <p class="item__meta">
+                {p.url && (
+                  <a href={p.url} rel="noopener noreferrer">
+                    {p.url.replace(/^https:\/\//, '')}
+                  </a>
+                )}
+                <a href={`https://github.com/${p.repo}`} rel="noopener noreferrer">
+                  github.com/{p.repo}
+                </a>
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="evolucion" aria-labelledby="evo-title">
+    <div class="wrap">
+      <p class="section__eyebrow">02 · evolución</p>
+      <h2 class="section__title" id="evo-title">De PHP a agentes e infraestructura</h2>
+      <p class="section__lede">
+        El recorrido desde 2016: trabajos, repos y papers. No es una lista de skills; es la línea
+        de tiempo.
+      </p>
+      <ol class="timeline" data-timeline>
+        {
+          timeline.map((t) => (
+            <li class="timeline__item" data-kind={t.kind}>
+              <span class="timeline__year">
+                {t.year} · {kindLabel[t.kind]}
+              </span>
+              <h3 class="timeline__title">{t.title}</h3>
+              <p class="timeline__detail">{t.detail}</p>
+            </li>
+          ))
+        }
+      </ol>
+      {
+        github.fetched_at && github.repos.length > 0 && (
+          <p class="section__lede" style="margin-top:2rem">
+            Última actividad pública en GitHub (build {github.fetched_at.slice(0, 10)}):{' '}
+            {github.repos
+              .slice(0, 5)
+              .map((r) => r.name)
+              .join(' · ')}
+            .
+          </p>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section" id="repos" aria-labelledby="repos-title">
+    <div class="wrap">
+      <p class="section__eyebrow">03 · repos</p>
+      <h2 class="section__title" id="repos-title">Destacados</h2>
+      <p class="section__lede">Selección curada. El resto vive en GitHub.</p>
+      <ul class="list">
+        {
+          repos.map((r) => (
+            <li class="item">
+              <h3 class="item__title">
+                <a href={r.url} rel="noopener noreferrer">
+                  {r.name}
+                </a>
+              </h3>
+              <p>{r.blurb}</p>
+              <p class="item__meta">
+                <a href={r.url} rel="noopener noreferrer">
+                  {r.repo}
+                </a>
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="publicaciones" aria-labelledby="pubs-title">
+    <div class="wrap">
+      <p class="section__eyebrow">04 · publicaciones</p>
+      <h2 class="section__title" id="pubs-title">Investigación aplicada</h2>
+      <ul class="list">
+        {
+          publications.map((p) => (
+            <li class="item">
+              <p class="item__meta">
+                <span>{p.date.slice(0, 7)}</span>
+                <span>{p.venue}</span>
+              </p>
+              <h3 class="item__title">
+                <a href={p.url} rel="noopener noreferrer">
+                  {p.title}
+                </a>
+              </h3>
+              <p>{p.summary}</p>
+              <p class="item__meta">{p.authors.join(' · ')}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="certificaciones" aria-labelledby="certs-title">
+    <div class="wrap">
+      <p class="section__eyebrow">05 · ruta 2026–2028</p>
+      <h2 class="section__title" id="certs-title">Certificaciones</h2>
+      <p class="section__lede">
+        Estado editable en <code>src/data/certs.json</code>. Ninguna figura como obtenida hasta
+        confirmarlo.
+      </p>
+      <div class="certs">
+        {
+          certs.map((c) => (
+            <article class="cert">
+              <span class="cert__code">{c.code}</span>
+              <div>
+                <h3 class="cert__name">{c.name}</h3>
+                <p class="cert__org">
+                  {c.org} · examen {c.exam}
+                </p>
+              </div>
+              <span
+                class:list={[
+                  'badge',
+                  c.status === 'in_progress'
+                    ? 'badge--amber'
+                    : c.status === 'earned'
+                      ? 'badge--live'
+                      : 'badge--muted',
+                ]}
+              >
+                {statusLabel[c.status]}
+              </span>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contacto" aria-labelledby="contact-title">
+    <div class="wrap">
+      <p class="section__eyebrow">06 · contacto</p>
+      <h2 class="section__title" id="contact-title">Hablemos</h2>
+      <p class="section__lede">{profile.summary}</p>
+      <div class="contact-row">
+        <a href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a href={`https://linkedin.com/in/${profile.linkedin}`} rel="noopener noreferrer"
+          >linkedin/{profile.linkedin}</a
+        >
+        <a href={`https://github.com/${profile.github}`} rel="noopener noreferrer"
+          >github/{profile.github}</a
+        >
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const items = document.querySelectorAll('[data-timeline] .timeline__item');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.15 },
+    );
+    items.forEach((el) => io.observe(el));
+  } else {
+    items.forEach((el) => el.classList.add('is-in'));
+  }
+</script>

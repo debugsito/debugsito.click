@@ -1,0 +1,21 @@
+- title: Robust Model for Automatic Detection of Confidential Information in GitHub Repositories Using Machine Learning Techniques
+  authors:
+    - Arián Garay
+    - Carlos Ramos
+    - Wilfredo Ticona
+  date: 2026-09-26
+  venue: Springer, Lecture Notes in Networks and Systems (CSOC 2026)
+  url: https://link.springer.com/chapter/10.1007/978-3-032-38806-3_16
+  summary: Modelo de Machine Learning para detectar automáticamente información confidencial expuesta en repositorios de GitHub.
+- title: Proposal for a Model for Predicting High Blood Pressure Based on Clinical Data Using Machine Learning Techniques
+  authors:
+    - Arián Garay
+    - Armando Ortiz
+    - Carlos Ramos
+    - Wilfredo Ticona
+  date: 2026-05-01
+  venue: Springer
+  url: https://link.springer.com/chapter/10.1007/978-3-032-20752-4_13
+  summary: >
+    Diseño y evaluación de modelos de Machine Learning para la predicción de hipertensión
+    con datos clínicos (91% de precisión y 0.96 de AUC en el estudio).

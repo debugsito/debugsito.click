@@ -1,0 +1,46 @@
+export const defaultLang = 'es' as const;
+
+export const ui = {
+  es: {
+    'nav.home': 'Inicio',
+    'nav.now': 'Ahora',
+    'nav.changelog': 'Changelog',
+    'nav.production': 'En producción',
+    'nav.evolution': 'Evolución',
+    'nav.repos': 'Repos',
+    'nav.pubs': 'Publicaciones',
+    'nav.certs': 'Certificaciones',
+    'nav.contact': 'Contacto',
+    'theme.light': 'Claro',
+    'theme.dark': 'Oscuro',
+    'status.live': 'en línea',
+    'status.down': 'sin respuesta',
+    'status.unknown': 'sin comprobar',
+    'status.selfHosted': 'self-hosted',
+    'cert.pending': 'pendiente',
+    'cert.in_progress': 'en curso',
+    'cert.earned': 'obtenida',
+  },
+  en: {
+    'nav.home': 'Home',
+    'nav.now': 'Now',
+    'nav.changelog': 'Changelog',
+    'nav.production': 'In production',
+    'nav.evolution': 'Evolution',
+    'nav.repos': 'Repos',
+    'nav.pubs': 'Publications',
+    'nav.certs': 'Certifications',
+    'nav.contact': 'Contact',
+    'theme.light': 'Light',
+    'theme.dark': 'Dark',
+    'status.live': 'online',
+    'status.down': 'no response',
+    'status.unknown': 'unchecked',
+    'status.selfHosted': 'self-hosted',
+    'cert.pending': 'pending',
+    'cert.in_progress': 'in progress',
+    'cert.earned': 'earned',
+  },
+} as const;
+
+export type Lang = keyof typeof ui;

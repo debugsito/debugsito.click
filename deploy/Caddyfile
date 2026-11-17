@@ -1,0 +1,15 @@
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	root * /srv
+	encode zstd gzip
+	try_files {path} {path}/ {path}/index.html
+	@frescos path / /index.html /now /now/ /changelog /changelog/ /en /en/
+	header @frescos Cache-Control "no-cache"
+	header X-Content-Type-Options nosniff
+	header Referrer-Policy "strict-origin-when-cross-origin"
+	file_server
+}

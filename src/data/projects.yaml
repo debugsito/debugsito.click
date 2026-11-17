@@ -1,0 +1,24 @@
+- id: grifos-lima
+  name: Grifos Lima
+  url: https://grifos.debugsito.click
+  repo: debugsito/grifos-lima
+  status: live
+  blurb: >
+    Mapa de precios de combustible en Lima y Callao: modo manejo, rutas con desvío real
+    (OSRM), tendencia de 60 días y ahorro neto por grifo.
+- id: tech-salary-prediction
+  name: Estimación salarial explicable
+  url: https://salarios.debugsito.click
+  repo: debugsito/tech-salary-prediction
+  status: live
+  blurb: >
+    Prototipo de mi tesis (ESAN): modelo con SHAP y auditoría de equidad que se niega a
+    responder cuando no tiene datos suficientes.
+- id: homebox-mcp
+  name: homebox-mcp
+  url: null
+  repo: debugsito/homebox-mcp
+  status: self-hosted
+  blurb: >
+    Servidor MCP y bot de Telegram sobre HomeBox: el inventario de la casa en lenguaje
+    natural, con fotos.

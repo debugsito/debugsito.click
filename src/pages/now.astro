@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { readContent, splitFrontmatter } from '../lib/md';
+
+const { front, body } = splitFrontmatter(readContent('now.md'));
+const paragraphs = body.split(/\n\n+/);
+---
+
+<BaseLayout
+  title="Ahora · debugsito"
+  description="Qué estoy haciendo este mes."
+  canonicalPath="/now"
+>
+  <article class="wrap page-head prose">
+    <p class="section__eyebrow">/now · actualizado {front.updated ?? '—'}</p>
+    <h1>{front.title ?? 'Ahora'}</h1>
+    {paragraphs.map((p) => <p>{p}</p>)}
+  </article>
+</BaseLayout>

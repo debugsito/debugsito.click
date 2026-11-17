@@ -1,0 +1,44 @@
+- year: 2016
+  kind: work
+  title: Primeros pasos en backend
+  detail: PHP con Symfony, Zend Framework y Laravel (Clicks Latam, Multilab).
+- year: 2016
+  kind: github
+  title: Repos PHP / Slim / Zend
+  detail: Empieza el rastro público en GitHub con servicios y prototipos en PHP.
+- year: 2017
+  kind: work
+  title: Líder de desarrollo — Caleidos
+  detail: Node.js, React y AWS; mentoría y pruebas de carga con Locust.
+- year: 2020
+  kind: work
+  title: Arquitecto de TI — StartApps
+  detail: Estándares de TI, seguridad (Kiuwan, pentesting) y CI/CD con Ansible, Terraform, Docker y OpenShift.
+- year: 2022
+  kind: work
+  title: Arquitecto DevOps AWS — Lya Electronics
+  detail: Alta disponibilidad en AWS, EKS, Terraform/CloudFormation y observabilidad (Prometheus, Grafana, ELK).
+- year: 2023
+  kind: work
+  title: Desarrollador Senior — JoyIt (Culqi)
+  detail: Microservicios Node.js, Lambda, Step Functions y EKS en pagos.
+- year: 2025
+  kind: work
+  title: DevOps Senior — Kyndryl (BCP)
+  detail: Migración Jenkins → GitHub Actions; Fortify, SonarQube, Xray y Artifactory.
+- year: 2025
+  kind: github
+  title: scrap-sunat
+  detail: API FastAPI para consultas a SUNAT; el repo con más estrellas.
+- year: 2026
+  kind: work
+  title: DevOps Senior — Cleverit (Credicorp)
+  detail: Plataforma corporativa de agentes de IA sobre Azure; Terraform, GHA OIDC y exposición a Teams/WhatsApp.
+- year: 2026
+  kind: github
+  title: MCP, agentes y tesis en producción
+  detail: homebox-mcp, claude-toolkit, grifos-lima y el prototipo de estimación salarial en salarios.debugsito.click.
+- year: 2026
+  kind: pub
+  title: Capítulos en Springer
+  detail: Detección de secretos en GitHub y predicción de hipertensión con Machine Learning.

@@ -1,0 +1,100 @@
+---
+---
+
+<p class="term__hint" aria-hidden="true">` o / · terminal</p>
+<div class="term" id="term" role="dialog" aria-label="Terminal" aria-hidden="true">
+  <div class="term__bar">
+    <span>debugsito://shell</span>
+    <button type="button" class="icon-btn" data-term-close style="background:#1a1f27;color:#d7dbdf;border-color:#2c333d">
+      esc
+    </button>
+  </div>
+  <pre class="term__out" id="term-out"></pre>
+  <form class="term__form" id="term-form" autocomplete="off">
+    <span aria-hidden="true">$</span>
+    <input id="term-input" name="cmd" spellcheck="false" aria-label="Comando" />
+  </form>
+</div>
+
+<script>
+  const term = document.getElementById('term');
+  const out = document.getElementById('term-out');
+  const form = document.getElementById('term-form') as HTMLFormElement | null;
+  const input = document.getElementById('term-input') as HTMLInputElement | null;
+  const closeBtn = document.querySelector('[data-term-close]');
+
+  const help = `comandos:
+  help                 esta ayuda
+  ls                   secciones
+  now                  abre /now
+  changelog            abre /changelog
+  open grifos|salarios abre el proyecto
+  whoami               quién soy
+  clear                limpia
+  exit                 cierra`;
+
+  function openTerm() {
+    if (!term || !out || !input) return;
+    term.classList.add('is-open');
+    term.setAttribute('aria-hidden', 'false');
+    if (!out.textContent) out.textContent = 'panel de control · escribe help\n';
+    input.focus();
+  }
+
+  function closeTerm() {
+    if (!term) return;
+    term.classList.remove('is-open');
+    term.setAttribute('aria-hidden', 'true');
+  }
+
+  function println(line: string) {
+    if (!out) return;
+    out.textContent += line + '\n';
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function run(raw: string) {
+    const cmd = raw.trim().toLowerCase();
+    println('$ ' + raw);
+    if (!cmd) return;
+    if (cmd === 'help') println(help);
+    else if (cmd === 'ls')
+      println('produccion  evolucion  repos  publicaciones  certificaciones  contacto  now  changelog');
+    else if (cmd === 'now') location.href = '/now';
+    else if (cmd === 'changelog') location.href = '/changelog';
+    else if (cmd === 'whoami')
+      println('Carlos Sebastian Ramos Flores · debugsito · Senior DevOps Engineer · Lima');
+    else if (cmd === 'clear') {
+      if (out) out.textContent = '';
+    } else if (cmd === 'exit' || cmd === 'q') closeTerm();
+    else if (cmd.startsWith('open ')) {
+      const t = cmd.slice(5).trim();
+      if (t === 'grifos') location.href = 'https://grifos.debugsito.click';
+      else if (t === 'salarios') location.href = 'https://salarios.debugsito.click';
+      else println('uso: open grifos|salarios');
+    } else println(`comando desconocido: ${cmd}`);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const t = e.target as HTMLElement | null;
+    const typing =
+      t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+    if (e.key === 'Escape') {
+      closeTerm();
+      return;
+    }
+    if (typing && t !== input) return;
+    if ((e.key === '`' || e.key === '/') && !term?.classList.contains('is-open')) {
+      e.preventDefault();
+      openTerm();
+    }
+  });
+
+  closeBtn?.addEventListener('click', closeTerm);
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!input) return;
+    run(input.value);
+    input.value = '';
+  });
+</script>

@@ -1,0 +1,27 @@
+- id: claude-toolkit
+  name: claude-toolkit
+  repo: debugsito/claude-toolkit
+  url: https://github.com/debugsito/claude-toolkit
+  blurb: >
+    Skills y subagentes DevOps para Claude Code, empaquetados como plugins independientes
+    (/mapa-proyecto, /runbook-cambio-prod, tf-dev, tf-review, sec-review, k8s-triage…).
+- id: scrap-sunat
+  name: scrap-sunat
+  repo: debugsito/scrap-sunat
+  url: https://github.com/debugsito/scrap-sunat
+  blurb: >
+    API FastAPI para consultar empresas en SUNAT por RUC, razón social o documento del
+    representante. Mi repositorio con más estrellas.
+- id: bigdata-archive-github
+  name: bigdata-archive-github
+  repo: debugsito/bigdata-archive-github
+  url: https://github.com/debugsito/bigdata-archive-github
+  blurb: >
+    Notebooks y código de trabajo con datos a escala sobre archivos de GitHub
+    (ingesta, modelos y ejemplos).
+- id: segmentacion-clientes
+  name: segmentacion-clientes
+  repo: debugsito/segmentacion-clientes
+  url: https://github.com/debugsito/segmentacion-clientes
+  blurb: >
+    Proyecto de segmentación de clientes con notebooks de Machine Learning.

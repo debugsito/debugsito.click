@@ -1,0 +1,125 @@
+{
+  "fetched_at": "2026-11-17T06:07:36.494Z",
+  "repos": [
+    {
+      "created_at": "2026-10-26T04:32:32Z",
+      "description": "Precios de combustible en Lima y Callao: el grifo que más te conviene cerca de ti",
+      "html_url": "https://github.com/debugsito/grifos-lima",
+      "language": "JavaScript",
+      "name": "grifos-lima",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2026-10-27T16:51:25Z"
+    },
+    {
+      "created_at": "2026-10-15T20:32:48Z",
+      "description": "Skills y subagentes de DevOps para Claude Code, como dos plugins independientes",
+      "html_url": "https://github.com/debugsito/claude-toolkit",
+      "language": "Python",
+      "name": "claude-toolkit",
+      "stargazers_count": 1,
+      "topics": [],
+      "updated_at": "2026-10-15T20:47:00Z"
+    },
+    {
+      "created_at": "2025-09-20T02:09:47Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/scrap-sunat",
+      "language": "Python",
+      "name": "scrap-sunat",
+      "stargazers_count": 12,
+      "topics": [],
+      "updated_at": "2026-10-14T16:29:55Z"
+    },
+    {
+      "created_at": "2026-05-14T15:40:47Z",
+      "description": "Estimación salarial explicable con auditoría de equidad - tesis de Ingeniería de Sistemas (ESAN)",
+      "html_url": "https://github.com/debugsito/tech-salary-prediction",
+      "language": "Jupyter Notebook",
+      "name": "tech-salary-prediction",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2026-10-14T04:13:34Z"
+    },
+    {
+      "created_at": "2026-06-18T05:14:00Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/homebox-mcp",
+      "language": "TypeScript",
+      "name": "homebox-mcp",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2026-09-14T04:53:33Z"
+    },
+    {
+      "created_at": "2026-07-18T16:29:32Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/segmentacion-clientes",
+      "language": "Jupyter Notebook",
+      "name": "segmentacion-clientes",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2026-07-18T17:29:54Z"
+    },
+    {
+      "created_at": "2026-07-17T02:04:39Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/orvan-doc",
+      "language": "HTML",
+      "name": "orvan-doc",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2026-07-17T04:28:45Z"
+    },
+    {
+      "created_at": "2026-07-12T03:22:45Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/bigdata-archive-github",
+      "language": "Jupyter Notebook",
+      "name": "bigdata-archive-github",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2026-07-12T03:24:43Z"
+    },
+    {
+      "created_at": "2025-08-24T05:15:11Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/scrap_github",
+      "language": "Python",
+      "name": "scrap_github",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2025-09-22T03:13:33Z"
+    },
+    {
+      "created_at": "2024-09-22T15:54:30Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/node-testesan",
+      "language": "JavaScript",
+      "name": "node-testesan",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2025-08-25T15:10:17Z"
+    },
+    {
+      "created_at": "2025-05-23T02:42:44Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/rickandmorty",
+      "language": "JavaScript",
+      "name": "rickandmorty",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2025-08-15T02:08:17Z"
+    },
+    {
+      "created_at": "2025-02-26T19:55:47Z",
+      "description": null,
+      "html_url": "https://github.com/debugsito/inesdi-docker-v1",
+      "language": "JavaScript",
+      "name": "inesdi-docker-v1",
+      "stargazers_count": 0,
+      "topics": [],
+      "updated_at": "2025-02-26T19:56:41Z"
+    }
+  ]
+}

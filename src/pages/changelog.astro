@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { readContent, splitFrontmatter } from '../lib/md';
+
+const { body } = splitFrontmatter(readContent('changelog.md'));
+
+function renderInline(text: string) {
+  return text
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
+const blocks = body.split(/\n(?=## )/);
+---
+
+<BaseLayout
+  title="Changelog · debugsito"
+  description="Historial de cambios de debugsito.click."
+  canonicalPath="/changelog"
+>
+  <article class="wrap page-head prose">
+    <p class="section__eyebrow">/changelog</p>
+    <h1>Changelog del sitio</h1>
+    {
+      blocks.map((block) => {
+        const lines = block.trim().split('\n');
+        const heading = lines[0].replace(/^##\s+/, '');
+        const items = lines.slice(1).filter((l) => l.startsWith('- '));
+        return (
+          <section>
+            <h2 set:html={renderInline(heading)} />
+            <ul>
+              {items.map((item) => (
+                <li set:html={renderInline(item.replace(/^- /, ''))} />
+              ))}
+            </ul>
+          </section>
+        );
+      })
+    }
+  </article>
+</BaseLayout>
