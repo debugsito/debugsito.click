@@ -138,14 +138,19 @@
     }
   });
 
-  openBtns.forEach((b) =>
-    b.addEventListener('click', () => openTerm(b as HTMLElement)),
-  );
-  closeBtn?.addEventListener('click', closeTerm);
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!input) return;
-    run(input.value);
-    input.value = '';
-  });
+  function bind() {
+    document.querySelectorAll('[data-term-open]').forEach((b) => {
+      (b as HTMLButtonElement).onclick = () => openTerm(b as HTMLElement);
+    });
+    document.querySelector('[data-term-close]')?.addEventListener('click', closeTerm);
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!input) return;
+      run(input.value);
+      input.value = '';
+    });
+  }
+
+  bind();
+  document.addEventListener('astro:page-load', bind);
 </script>

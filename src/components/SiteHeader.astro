@@ -1,16 +1,17 @@
 ---
 const links = [
-  { href: '/#produccion', label: 'Producción' },
+  { href: '/#produccion', label: 'Rack' },
+  { href: '/#opensource', label: 'Open source' },
   { href: '/#evolucion', label: 'Evolución' },
   { href: '/#contacto', label: 'Contacto' },
   { href: '/now', label: 'Ahora' },
-  { href: '/changelog', label: 'Changelog', optional: true },
+  { href: '/changelog', label: 'Log', optional: true },
 ];
 ---
 
-<header class="site-header">
+<header class="site-header" transition:name="site-header">
   <div class="wrap site-header__inner">
-    <a class="brand" href="/">debugsito</a>
+    <a class="brand" href="/" transition:name="brand-link">debugsito</a>
     <nav class="nav" aria-label="Principal">
       {
         links.map((l) => (

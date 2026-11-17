@@ -1,0 +1,72 @@
+---
+import { profile, github, status } from '../lib/data';
+
+const signals = profile.signals ?? [];
+const liveUp = (status.checks ?? []).filter((c) => c.ok).length;
+const liveTotal = (status.checks ?? []).length;
+const repoCount = github.repos?.length ?? 0;
+---
+
+<div class="ticker" data-ticker aria-live="polite">
+  <div class="ticker__clock">
+    <span class="ticker__label">Lima</span>
+    <time id="ops-clock" datetime="">--:--:--</time>
+  </div>
+  <div class="ticker__sep" aria-hidden="true"></div>
+  <p class="ticker__signal" data-ticker-signal>
+    cluster · {liveUp}/{liveTotal} up · {repoCount} repos en el último snapshot
+  </p>
+  <button type="button" class="icon-btn ticker__pause" data-ticker-pause aria-pressed="false">
+    pausar
+  </button>
+</div>
+
+<script define:vars={{ signals, liveUp, liveTotal, repoCount }}>
+  const lines = [
+    `cluster · ${liveUp}/${liveTotal} up · ${repoCount} repos en el último snapshot`,
+    ...signals,
+  ];
+  const signalEl = document.querySelector('[data-ticker-signal]');
+  const clockEl = document.getElementById('ops-clock');
+  const pauseBtn = document.querySelector('[data-ticker-pause]');
+  let i = 0;
+  let timer = 0;
+  let paused = false;
+
+  function tickClock() {
+    if (!clockEl) return;
+    const now = new Date();
+    clockEl.dateTime = now.toISOString();
+    clockEl.textContent = now.toLocaleTimeString('es-PE', {
+      timeZone: 'America/Lima',
+      hour12: false,
+    });
+  }
+
+  function rotate() {
+    if (!signalEl || paused || lines.length === 0) return;
+    i = (i + 1) % lines.length;
+    signalEl.classList.add('is-swap');
+    window.setTimeout(() => {
+      signalEl.textContent = lines[i];
+      signalEl.classList.remove('is-swap');
+    }, 160);
+  }
+
+  function start() {
+    window.clearInterval(timer);
+    timer = window.setInterval(rotate, 4200);
+  }
+
+  tickClock();
+  window.setInterval(tickClock, 1000);
+  start();
+
+  pauseBtn?.addEventListener('click', () => {
+    paused = !paused;
+    pauseBtn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+    pauseBtn.textContent = paused ? 'reanudar' : 'pausar';
+    if (paused) window.clearInterval(timer);
+    else start();
+  });
+</script>

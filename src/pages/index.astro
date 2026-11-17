@@ -1,32 +1,43 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import StatusStrip from '../components/StatusStrip.astro';
-import {
-  profile,
-  projects,
-  repos,
-  publications,
-  timeline,
-  certs,
-  github,
-  statusLabel,
-  certScheduleLabel,
-} from '../lib/data';
+import OpsTicker from '../components/OpsTicker.astro';
+import NetworkMesh from '../components/NetworkMesh.astro';
+import Reveal from '../components/Reveal.astro';
+import { profile, projects, repos, publications, timeline, github } from '../lib/data';
 
 const kindLabel = { work: 'trabajo', github: 'github', pub: 'paper' } as const;
-const activeCerts = certs.filter((c) => c.status === 'in_progress' || c.status === 'earned');
-const pendingCerts = certs.filter((c) => c.status === 'pending');
+
+const curatedNames = new Set(repos.map((r) => r.name));
+const liveRepos = (github.repos ?? []).filter((r) => !curatedNames.has(r.name)).slice(0, 8);
+const languages = [
+  'all',
+  ...new Set(
+    [...repos.map((r) => {
+      const g = github.repos?.find((x) => x.name === r.name);
+      return g?.language;
+    }), ...liveRepos.map((r) => r.language)].filter(Boolean) as string[],
+  ),
+];
+
+const repoLang = (name: string) =>
+  github.repos?.find((r) => r.name === name)?.language ?? 'Other';
 ---
 
-<BaseLayout title={`${profile.handle} · ${profile.role}`} description={profile.tagline}>
+<BaseLayout title={`${profile.handle} · homebase`} description={profile.tagline}>
+  <div class="atmosphere" aria-hidden="true">
+    <NetworkMesh />
+  </div>
+
   <section class="wrap hero" aria-labelledby="hero-brand">
+    <OpsTicker />
     <p class="hero__name">{profile.name}</p>
-    <p class="hero__meta">{profile.role} · {profile.location}</p>
-    <h1 class="hero__brand" id="hero-brand">{profile.handle}</h1>
+    <p class="hero__meta">{profile.role} · {profile.location} · open source</p>
+    <h1 class="hero__brand" id="hero-brand" transition:name="brand">{profile.handle}</h1>
     <p class="hero__tagline">{profile.tagline}</p>
     <div class="cta-row">
-      <a class="btn" href="#produccion">Ver producción</a>
-      <a class="btn btn--ghost" href={`mailto:${profile.email}`}>Escribirme</a>
+      <a class="btn" href="#produccion">Entrar al rack</a>
+      <a class="btn btn--ghost" href="#opensource">Open source</a>
       <a class="btn btn--ghost" href={`https://github.com/${profile.github}`} rel="noopener noreferrer"
         >GitHub</a
       >
@@ -34,64 +45,67 @@ const pendingCerts = certs.filter((c) => c.status === 'pending');
     <StatusStrip />
   </section>
 
-  <section class="section" id="produccion" aria-labelledby="prod-title">
+  <Reveal as="section" class="section" id="produccion">
     <div class="wrap">
-      <h2 class="section__title" id="prod-title">Lo que está corriendo</h2>
+      <h2 class="section__title" id="prod-title">Rack en producción</h2>
       <p class="section__lede">
-        Servicios que mantengo en mi servidor: públicos con URL y uno self-hosted sin exponer.
+        Servicios que corro en casa. Públicos con URL; uno self-hosted sin exponer al internet.
       </p>
-      <ul class="list">
+      <ul class="rack" data-rack>
         {
-          projects.map((p) => (
-            <li class="item">
-              <div class="item__meta">
-                <span class:list={['badge', p.status === 'live' ? 'badge--live' : 'badge--self']}>
-                  {p.status === 'live' ? 'live' : 'self-hosted'}
-                </span>
-                <span>{p.repo}</span>
+          projects.map((p, idx) => (
+            <li class="rack__unit">
+              <span class="rack__u" aria-hidden="true">
+                U{String(idx + 1).padStart(2, '0')}
+              </span>
+              <div class="rack__body">
+                <div class="item__meta">
+                  <span class:list={['badge', p.status === 'live' ? 'badge--live' : 'badge--self']}>
+                    {p.status === 'live' ? 'live' : 'self-hosted'}
+                  </span>
+                  <span>{p.repo}</span>
+                </div>
+                <h3 class="item__title">
+                  {p.url ? (
+                    <a href={p.url} rel="noopener noreferrer">
+                      {p.name}
+                    </a>
+                  ) : (
+                    p.name
+                  )}
+                </h3>
+                <p>{p.blurb}</p>
+                <p class="item__meta">
+                  {p.url && (
+                    <a href={p.url} rel="noopener noreferrer">
+                      {p.url.replace(/^https:\/\//, '')}
+                    </a>
+                  )}
+                  <a href={`https://github.com/${p.repo}`} rel="noopener noreferrer">
+                    código
+                  </a>
+                </p>
               </div>
-              <h3 class="item__title">
-                {p.url ? (
-                  <a href={p.url} rel="noopener noreferrer">
-                    {p.name}
-                  </a>
-                ) : (
-                  p.name
-                )}
-              </h3>
-              <p>{p.blurb}</p>
-              <p class="item__meta">
-                {p.url && (
-                  <a href={p.url} rel="noopener noreferrer">
-                    {p.url.replace(/^https:\/\//, '')}
-                  </a>
-                )}
-                <a href={`https://github.com/${p.repo}`} rel="noopener noreferrer">
-                  código
-                </a>
-              </p>
             </li>
           ))
         }
       </ul>
     </div>
-  </section>
+  </Reveal>
 
   <div class="wrap contact-band" aria-label="Contacto rápido">
-    <span>Hablar:</span>
+    <span>canal:</span>
     <a href={`mailto:${profile.email}`}>{profile.email}</a>
-    <a href={`https://linkedin.com/in/${profile.linkedin}`} rel="noopener noreferrer"
-      >LinkedIn</a
-    >
+    <a href={`https://linkedin.com/in/${profile.linkedin}`} rel="noopener noreferrer">LinkedIn</a>
     <a href={`https://github.com/${profile.github}`} rel="noopener noreferrer">GitHub</a>
   </div>
 
-  <section class="section" id="evolucion" aria-labelledby="evo-title">
+  <Reveal as="section" class="section" id="evolucion">
     <div class="wrap">
-      <h2 class="section__title" id="evo-title">De PHP a agentes e infraestructura</h2>
+      <h2 class="section__title" id="evo-title">journalctl — evolución</h2>
       <p class="section__lede">
-        El recorrido desde 2016: trabajos, repos y papers. Una línea de tiempo, no una lista de
-        skills.
+        Desde PHP (2016) hasta agentes, Terraform y MCP. El rastro público y el laboral en la misma
+        línea de tiempo.
       </p>
       <ol class="timeline" data-timeline>
         {
@@ -106,31 +120,33 @@ const pendingCerts = certs.filter((c) => c.status === 'pending');
           ))
         }
       </ol>
-      {
-        github.fetched_at && github.repos.length > 0 && (
-          <p class="section__lede" style="margin-top:1.75rem;margin-bottom:0">
-            Actividad pública reciente (build {github.fetched_at.slice(0, 10)}):{' '}
-            {github.repos
-              .slice(0, 5)
-              .map((r) => r.name)
-              .join(' · ')}
-            .
-          </p>
-        )
-      }
     </div>
-  </section>
+  </Reveal>
 
-  <section class="section" id="repos" aria-labelledby="repos-title">
+  <Reveal as="section" class="section" id="opensource">
     <div class="wrap">
-      <h2 class="section__title" id="repos-title">Repos que comparto</h2>
+      <h2 class="section__title" id="oss-title">Open source que comparto</h2>
       <p class="section__lede">
-        Kit de agentes, API SUNAT y trabajo de datos. Lo demás vive en GitHub.
+        Destacados curados más actividad reciente del snapshot de GitHub. Filtra por lenguaje.
       </p>
-      <ul class="list">
+      <div class="chips" role="toolbar" aria-label="Filtrar por lenguaje">
+        {
+          languages.map((lang, i) => (
+            <button
+              type="button"
+              class="chip"
+              data-lang-chip={lang}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              {lang === 'all' ? 'todo' : lang}
+            </button>
+          ))
+        }
+      </div>
+      <ul class="oss-grid">
         {
           repos.map((r) => (
-            <li class="item">
+            <li class="oss-card" data-lang={repoLang(r.name)}>
               <h3 class="item__title">
                 <a href={r.url} rel="noopener noreferrer">
                   {r.name}
@@ -138,6 +154,7 @@ const pendingCerts = certs.filter((c) => c.status === 'pending');
               </h3>
               <p>{r.blurb}</p>
               <p class="item__meta">
+                <span>{repoLang(r.name)}</span>
                 <a href={r.url} rel="noopener noreferrer">
                   {r.repo}
                 </a>
@@ -145,14 +162,38 @@ const pendingCerts = certs.filter((c) => c.status === 'pending');
             </li>
           ))
         }
+        {
+          liveRepos.map((r) => (
+            <li class="oss-card oss-card--live" data-lang={r.language ?? 'Other'}>
+              <h3 class="item__title">
+                <a href={r.html_url} rel="noopener noreferrer">
+                  {r.name}
+                </a>
+              </h3>
+              <p>{r.description ?? 'Repositorio público en actividad reciente.'}</p>
+              <p class="item__meta">
+                <span>{r.language ?? '—'}</span>
+                <span>★ {r.stargazers_count}</span>
+                <span>upd {r.updated_at.slice(0, 10)}</span>
+              </p>
+            </li>
+          ))
+        }
       </ul>
+      {
+        github.fetched_at && (
+          <p class="section__lede" style="margin-top:1.25rem;margin-bottom:0">
+            Snapshot GitHub · {github.fetched_at.slice(0, 16).replace('T', ' ')} UTC
+          </p>
+        )
+      }
     </div>
-  </section>
+  </Reveal>
 
-  <section class="section" id="publicaciones" aria-labelledby="pubs-title">
+  <Reveal as="section" class="section" id="publicaciones">
     <div class="wrap">
-      <h2 class="section__title" id="pubs-title">Investigación aplicada</h2>
-      <p class="section__lede">Dos capítulos en Springer sobre Machine Learning.</p>
+      <h2 class="section__title" id="pubs-title">Papers en Springer</h2>
+      <p class="section__lede">Investigación aplicada en Machine Learning.</p>
       <ul class="list">
         {
           publications.map((p) => (
@@ -173,68 +214,11 @@ const pendingCerts = certs.filter((c) => c.status === 'pending');
         }
       </ul>
     </div>
-  </section>
+  </Reveal>
 
-  <section class="section" id="certificaciones" aria-labelledby="certs-title">
+  <Reveal as="section" class="section" id="contacto">
     <div class="wrap">
-      <h2 class="section__title" id="certs-title">Ruta de certificaciones 2026–2028</h2>
-      <p class="section__lede">
-        Primero lo que está en curso. Ninguna figura como obtenida hasta confirmarlo.
-      </p>
-      <div class="certs">
-        {
-          activeCerts.map((c) => (
-            <article class="cert cert--focus">
-              <span class="cert__code">{c.code}</span>
-              <div>
-                <h3 class="cert__name">{c.name}</h3>
-                <p class="cert__org">
-                  {c.org} · {certScheduleLabel(c)}
-                </p>
-              </div>
-              <span
-                class:list={[
-                  'badge',
-                  c.status === 'in_progress'
-                    ? 'badge--amber'
-                    : c.status === 'earned'
-                      ? 'badge--live'
-                      : 'badge--muted',
-                ]}
-              >
-                {statusLabel[c.status]}
-              </span>
-            </article>
-          ))
-        }
-      </div>
-      {
-        pendingCerts.length > 0 && (
-          <details class="certs-more">
-            <summary>Ver las {pendingCerts.length} pendientes del plan</summary>
-            <div class="certs">
-              {pendingCerts.map((c) => (
-                <article class="cert">
-                  <span class="cert__code">{c.code}</span>
-                  <div>
-                    <h3 class="cert__name">{c.name}</h3>
-                    <p class="cert__org">
-                      {c.org} · {certScheduleLabel(c)}
-                    </p>
-                  </div>
-                  <span class="badge badge--muted">{statusLabel[c.status]}</span>
-                </article>
-              ))}
-            </div>
-          </details>
-        )
-      }
-    </div>
-  </section>
-
-  <section class="section" id="contacto" aria-labelledby="contact-title">
-    <div class="wrap">
-      <h2 class="section__title" id="contact-title">Hablemos</h2>
+      <h2 class="section__title" id="contact-title">Abrir un canal</h2>
       <p class="section__lede">{profile.summary}</p>
       <div class="contact-row">
         <a href={`mailto:${profile.email}`}>{profile.email}</a>
@@ -246,28 +230,9 @@ const pendingCerts = certs.filter((c) => c.status === 'pending');
         >
       </div>
     </div>
-  </section>
-</BaseLayout>
+  </Reveal>
 
-<script>
-  const items = document.querySelectorAll('[data-timeline] .timeline__item');
-  const viewTimeline = CSS.supports?.('animation-timeline: view()') ?? false;
-  if (viewTimeline) {
-    items.forEach((el) => el.classList.add('is-in'));
-  } else if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add('is-in');
-            io.unobserve(e.target);
-          }
-        });
-      },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.15 },
-    );
-    items.forEach((el) => io.observe(el));
-  } else {
-    items.forEach((el) => el.classList.add('is-in'));
-  }
-</script>
+  <script>
+    import '../scripts/homebase.ts';
+  </script>
+</BaseLayout>

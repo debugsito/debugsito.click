@@ -24,6 +24,7 @@ export type Profile = {
   github: string;
   education: { institution: string; area: string }[];
   live_checks: { id: string; label: string; url: string }[];
+  signals?: string[];
 };
 
 export type Project = {

@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import '@fontsource-variable/syne';
 import '@fontsource/ibm-plex-sans/400.css';
 import '@fontsource/ibm-plex-sans/600.css';
@@ -18,7 +19,7 @@ interface Props {
 
 const {
   title,
-  description = 'debugsito — Senior DevOps Engineer. Lo que construyo y lo que está en producción.',
+  description = 'debugsito — homebase DevOps. Open source, pipelines y lo que corre en producción.',
   ogImage = '/og.png',
   canonicalPath = Astro.url.pathname,
 } = Astro.props;
@@ -53,6 +54,7 @@ const og = new URL(ogImage, site).href;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" hreflang="es" href={canonical} />
     <link rel="alternate" hreflang="x-default" href={canonical} />
+    <ClientRouter />
     <script is:inline>
       (function () {
         try {
@@ -68,7 +70,7 @@ const og = new URL(ogImage, site).href;
   <body>
     <a class="skip" href="#main">Saltar al contenido</a>
     <SiteHeader />
-    <main id="main">
+    <main id="main" transition:animate="fade">
       <slot />
     </main>
     <SiteFooter />
@@ -104,14 +106,18 @@ const og = new URL(ogImage, site).href;
         btn.setAttribute('aria-label', `Tema actual: ${label}. Cambiar tema`);
       }
 
-      document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const s = currentScheme();
-          applyScheme(s === 'light' ? 'dark' : s === 'dark' ? 'system' : 'light');
+      function bindTheme() {
+        document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const s = currentScheme();
+            applyScheme(s === 'light' ? 'dark' : s === 'dark' ? 'system' : 'light');
+          });
         });
-      });
+        syncToggle();
+      }
 
-      syncToggle();
+      bindTheme();
+      document.addEventListener('astro:page-load', bindTheme);
     </script>
   </body>
 </html>
