@@ -81,9 +81,10 @@ export function bootTerminal() {
       'sistema    whoami  uname  hostname  date  uptime  free  df  ps',
       'cloud      repos  open <svc|repo>  curl <repo>  git status',
       'sitio      now  changelog  play  open grifos|salarios',
+      'ai         ask <pregunta>  ·  nano (status Chrome Prompt API)',
       'misc       clear  history  fortune  neofetch  man <cmd>',
       '',
-      'empieza:  ls  ·  cd prod  ·  cat grifos  ·  open grifos',
+      'empieza:  ls  ·  cd prod  ·  open grifos  ·  ask qué hay en el rack?',
     ].join('\n');
   }
 
@@ -268,7 +269,7 @@ export function bootTerminal() {
     print(`open: desconocido «${name}» — prueba: open grifos | open salarios | ls ~/repos`);
   }
 
-  function run(raw: string) {
+  async function run(raw: string) {
     const trimmed = raw.trim();
     print(`guest:${shortHome(cwd)}$ ${raw}`);
     if (!trimmed) return;
@@ -284,6 +285,32 @@ export function bootTerminal() {
       case '?':
         printBlock(helpText());
         break;
+      case 'nano':
+      case 'ai': {
+        const { chromeAiStatus } = await import('./chrome-ai');
+        const st = await chromeAiStatus();
+        print(`chrome built-in AI · ${st.state}`);
+        print(st.detail);
+        if (st.ok) print('uso: ask qué proyectos tienes en producción?');
+        break;
+      }
+      case 'ask': {
+        const q = args.join(' ').trim();
+        if (!q) {
+          print('uso: ask <pregunta sobre este sitio>');
+          break;
+        }
+        print('… consultando Gemini Nano (on-device)');
+        try {
+          const { chromeAiAsk } = await import('./chrome-ai');
+          const answer = await chromeAiAsk(q);
+          printBlock(answer || '(sin respuesta)');
+        } catch (err) {
+          print(`ask: ${err instanceof Error ? err.message : String(err)}`);
+          print('tip: Chrome 148+ desktop · chrome://on-device-internals');
+        }
+        break;
+      }
       case 'man':
         if (!args[0]) print('qué manual?  man ls');
         else if (['ls', 'cd', 'cat', 'open', 'sudo', 'rm'].includes(args[0]))
@@ -519,8 +546,9 @@ export function bootTerminal() {
 
   form.onsubmit = (e) => {
     e.preventDefault();
-    run(input.value);
+    const value = input.value;
     input.value = '';
+    void run(value);
   };
 
   // always minimized by default

@@ -2,6 +2,11 @@
 title: Changelog del sitio
 ---
 
+## 2026-11-17 — hero + Chrome AI
+
+- Shot de Grifos debajo del brand (ya no tapa debugsito); captura limpia del mapa.
+- `ask` / `nano` en la shell vía Prompt API (Gemini Nano on-device) cuando Chrome lo soporta.
+
 ## 2026-11-17 — round de mejoras
 
 - Menú Más en móvil; /en homebase completa; dark fijo en móvil.

@@ -48,44 +48,46 @@ const blurbEn: Record<string, string> = {
 
   <section class="wrap hero" aria-labelledby="hero-brand">
     <OpsTicker />
-    <div class="hero__grid">
-      <div class="hero__copy">
-        <p class="hero__name">{profile.name}</p>
-        <p class="hero__meta">{profile.role} · {profile.location} · open source</p>
-        <h1 class="hero__brand" id="hero-brand" transition:name="brand">{profile.handle}</h1>
-        <p class="hero__tagline">
-          Digital home of a DevOps engineer obsessed with open source, automation and agents. What I
-          run in production lives here.
-        </p>
-        <div class="cta-row">
-          <a class="btn" href="#produccion">Enter the rack</a>
-          <a class="btn btn--ghost" href="#opensource">Open source</a>
-          <button type="button" class="btn btn--ghost" data-arcade-open>Arcade</button>
-          <a
-            class="btn btn--ghost"
-            href={`https://github.com/${profile.github}`}
-            rel="noopener noreferrer">GitHub</a
-          >
-        </div>
-        <StatusStrip />
-      </div>
+    <p class="hero__name">{profile.name}</p>
+    <p class="hero__meta">{profile.role} · {profile.location} · open source</p>
+    <h1 class="hero__brand" id="hero-brand" transition:name="brand">{profile.handle}</h1>
+    <p class="hero__tagline">
+      Digital home of a DevOps engineer obsessed with open source, automation and agents. What I run
+      in production lives here.
+    </p>
+    <div class="cta-row">
+      <a class="btn" href="#produccion">Enter the rack</a>
+      <a class="btn btn--ghost" href="#opensource">Open source</a>
+      <button type="button" class="btn btn--ghost" data-arcade-open>Arcade</button>
       <a
-        class="hero__shot"
-        href="https://grifos.debugsito.click"
-        rel="noopener noreferrer"
-        aria-label="Open Grifos Lima"
+        class="btn btn--ghost"
+        href={`https://github.com/${profile.github}`}
+        rel="noopener noreferrer">GitHub</a
       >
-        <img
-          src="/shots/grifos.webp"
-          alt="Screenshot of Grifos Lima in production"
-          width="1280"
-          height="720"
-          loading="eager"
-          decoding="async"
-        />
-        <span class="hero__shot-caption">grifos.debugsito.click · live</span>
-      </a>
     </div>
+    <StatusStrip />
+  </section>
+
+  <section class="wrap product-strip" aria-label="In production: Grifos Lima">
+    <a
+      class="product-strip__frame"
+      href="https://grifos.debugsito.click"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="/shots/grifos.webp"
+        alt="Grifos Lima: fuel price map for Lima"
+        width="1280"
+        height="720"
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
+    <p class="product-strip__meta">
+      <span class="badge badge--live">live</span>
+      <a href="https://grifos.debugsito.click" rel="noopener noreferrer">grifos.debugsito.click</a>
+      — fuel map for Lima, on the rack.
+    </p>
   </section>
 
   <Reveal as="section" class="section section--rack" id="produccion">

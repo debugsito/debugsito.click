@@ -160,9 +160,38 @@ const altEn = new URL('/en/', site).href;
         });
       }
 
+      async function bindNano() {
+        const btns = document.querySelectorAll<HTMLButtonElement>('[data-nano-ask]');
+        if (!btns.length) return;
+        try {
+          const { chromeAiStatus } = await import('../scripts/chrome-ai');
+          const st = await chromeAiStatus();
+          btns.forEach((btn) => {
+            btn.hidden = !st.ok;
+            btn.onclick = () => {
+              document.dispatchEvent(new CustomEvent('debugsito:term-open'));
+              queueMicrotask(() => {
+                const input = document.getElementById('term-input') as HTMLInputElement | null;
+                if (!input) return;
+                input.value = 'ask ';
+                input.focus();
+              });
+            };
+          });
+        } catch {
+          btns.forEach((btn) => {
+            btn.hidden = true;
+          });
+        }
+      }
+
       bindTheme();
       registerSw();
-      document.addEventListener('astro:page-load', bindTheme);
+      void bindNano();
+      document.addEventListener('astro:page-load', () => {
+        bindTheme();
+        void bindNano();
+      });
       window.matchMedia('(max-width: 720px)').addEventListener('change', () => applyScheme(currentScheme()));
     </script>
   </body>
