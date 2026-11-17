@@ -2,6 +2,11 @@
 title: Changelog del sitio
 ---
 
+## 2026-11-17 — shell siempre abajo
+
+- Dock fijo con prompt siempre usable; expandir para historial.
+- Persiste entre páginas (`transition:persist` + sessionStorage).
+
 ## 2026-11-17 — jugable + filtros
 
 - Arcade más suave (paddle grande, 5 vidas, combo).

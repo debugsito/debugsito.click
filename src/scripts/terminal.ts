@@ -1,13 +1,14 @@
+const STORAGE_KEY = 'debugsito-term-expanded';
+
 let wired = false;
 
 export function bootTerminal() {
-  const term = document.getElementById('term');
+  const dock = document.querySelector<HTMLElement>('[data-term-dock]');
+  const panel = document.getElementById('term');
   const out = document.getElementById('term-out');
   const form = document.getElementById('term-form') as HTMLFormElement | null;
   const input = document.getElementById('term-input') as HTMLInputElement | null;
-  if (!term || !out || !form || !input) return;
-
-  let lastOpener: HTMLElement | null = null;
+  if (!dock || !panel || !out || !form || !input) return;
 
   const help = `comandos:
   help                 esta ayuda
@@ -16,30 +17,54 @@ export function bootTerminal() {
   open grifos|salarios abre proyecto
   play                 mini-arcade deploy dodge
   whoami               quién soy
-  clear | exit         limpia / cierra`;
+  clear                limpia historial
+  exit | q             minimiza el dock`;
 
-  function setOpen(open: boolean) {
-    term.classList.toggle('is-open', open);
-    term.dataset.open = open ? 'true' : 'false';
-    term.setAttribute('aria-hidden', open ? 'false' : 'true');
-    document.querySelectorAll('[data-term-open]').forEach((b) => {
+  function isExpanded() {
+    return dock.dataset.expanded === 'true';
+  }
+
+  function setExpanded(open: boolean) {
+    dock.dataset.expanded = open ? 'true' : 'false';
+    dock.classList.toggle('is-expanded', open);
+    panel.hidden = !open;
+    document.querySelectorAll('[data-term-toggle], [data-term-open]').forEach((b) => {
       b.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
+    try {
+      sessionStorage.setItem(STORAGE_KEY, open ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+    if (open && !out.textContent) {
+      out.textContent = 'shell lista · siempre abajo · help · play\n';
+    }
+    if (open) {
+      out.scrollTop = out.scrollHeight;
+      queueMicrotask(() => input.focus());
+    }
   }
 
-  function openTerm(opener?: HTMLElement | null) {
-    lastOpener = opener ?? (document.activeElement as HTMLElement | null);
-    setOpen(true);
-    if (!out.textContent) out.textContent = 'shell lista · help · play\n';
-    queueMicrotask(() => input.focus());
+  function expand(focus = true) {
+    setExpanded(true);
+    if (focus) queueMicrotask(() => input.focus());
   }
 
-  function closeTerm() {
-    setOpen(false);
-    lastOpener?.focus?.();
+  function collapse() {
+    setExpanded(false);
+  }
+
+  function toggle() {
+    if (isExpanded()) collapse();
+    else expand();
+  }
+
+  function focusDock() {
+    input.focus();
   }
 
   function println(line: string) {
+    if (!isExpanded()) setExpanded(true);
     out.textContent += line + '\n';
     out.scrollTop = out.scrollHeight;
   }
@@ -56,9 +81,8 @@ export function bootTerminal() {
     else if (cmd === 'whoami')
       println('Carlos Sebastian Ramos Flores · debugsito · Senior DevOps Engineer · Lima');
     else if (cmd === 'clear') out.textContent = '';
-    else if (cmd === 'exit' || cmd === 'q') closeTerm();
+    else if (cmd === 'exit' || cmd === 'q') collapse();
     else if (cmd === 'play') {
-      closeTerm();
       document.dispatchEvent(new CustomEvent('debugsito:arcade-open'));
     } else if (cmd.startsWith('open ')) {
       const t = cmd.slice(5).trim();
@@ -68,24 +92,38 @@ export function bootTerminal() {
     } else println(`desconocido: ${cmd} · help`);
   }
 
-  // Rebind form each boot (view transitions may clone nodes)
   form.onsubmit = (e) => {
     e.preventDefault();
     run(input.value);
     input.value = '';
   };
 
+  // restore expanded preference across navigations
+  try {
+    if (sessionStorage.getItem(STORAGE_KEY) === '1') setExpanded(true);
+    else setExpanded(false);
+  } catch {
+    setExpanded(false);
+  }
+
   if (!wired) {
     wired = true;
     document.addEventListener('click', (e) => {
       const t = e.target as HTMLElement | null;
       if (!t) return;
+      if (t.closest('[data-term-toggle]')) {
+        e.preventDefault();
+        toggle();
+        return;
+      }
       if (t.closest('[data-term-open]')) {
         e.preventDefault();
-        openTerm(t.closest('[data-term-open]') as HTMLElement);
-      } else if (t.closest('[data-term-close]')) {
+        expand();
+        return;
+      }
+      if (t.closest('[data-term-collapse]') || t.closest('[data-term-close]')) {
         e.preventDefault();
-        closeTerm();
+        collapse();
       }
     });
 
@@ -93,16 +131,17 @@ export function bootTerminal() {
       const el = e.target as HTMLElement | null;
       const typing =
         el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
-      const open = term.dataset.open === 'true';
+      const open = isExpanded();
 
       if (e.key === 'Escape' && open) {
         e.preventDefault();
-        closeTerm();
+        collapse();
         return;
       }
-      if (open && e.key === 'Tab') {
+
+      if (open && e.key === 'Tab' && panel.contains(document.activeElement)) {
         const list = Array.from(
-          term.querySelectorAll<HTMLElement>(
+          dock.querySelectorAll<HTMLElement>(
             'button:not([disabled]), input:not([disabled])',
           ),
         );
@@ -118,17 +157,17 @@ export function bootTerminal() {
         }
         return;
       }
-      if (typing && el !== input) return;
-      if (e.key === '`' && !open) {
+
+      if (e.key === '`' && !typing) {
         e.preventDefault();
-        openTerm();
+        if (!open) expand();
+        else focusDock();
       }
     });
 
-    document.addEventListener('debugsito:term-open', () => openTerm());
+    document.addEventListener('debugsito:term-open', () => expand());
   }
 
-  // expose for arcade / others
   (window as unknown as { __debugsitoTerm?: { open: () => void; close: () => void } }).__debugsitoTerm =
-    { open: () => openTerm(), close: closeTerm };
+    { open: () => expand(), close: collapse };
 }

@@ -1,27 +1,48 @@
 ---
 ---
 
-<div
-  class="term"
-  id="term"
-  role="dialog"
-  aria-modal="true"
-  aria-label="Terminal"
-  aria-hidden="true"
-  data-open="false"
+<aside
+  class="term-dock"
+  id="term-dock"
+  data-term-dock
+  data-expanded="false"
+  aria-label="Shell debugsito"
+  transition:persist="term-dock"
 >
-  <div class="term__bar">
-    <span>debugsito://shell</span>
-    <button type="button" class="icon-btn term__close" data-term-close style="background:#1a1f27;color:#d7dbdf;border-color:#2c333d">
-      esc
-    </button>
+  <div class="term-dock__panel" id="term" hidden>
+    <div class="term-dock__bar">
+      <span>debugsito://shell</span>
+      <div class="term-dock__actions">
+        <button type="button" class="icon-btn term-dock__btn" data-term-collapse>
+          minimizar
+        </button>
+      </div>
+    </div>
+    <pre class="term-dock__out" id="term-out" aria-live="polite"></pre>
   </div>
-  <pre class="term__out" id="term-out"></pre>
-  <form class="term__form" id="term-form" autocomplete="off">
-    <span aria-hidden="true">$</span>
-    <input id="term-input" name="cmd" spellcheck="false" aria-label="Comando" />
+
+  <form class="term-dock__form" id="term-form" autocomplete="off">
+    <button
+      type="button"
+      class="term-dock__grip"
+      data-term-toggle
+      aria-controls="term"
+      aria-expanded="false"
+      title="Expandir o minimizar historial"
+    >
+      <span class="term-dock__prompt" aria-hidden="true">$</span>
+      <span class="term-dock__label">shell</span>
+    </button>
+    <input
+      id="term-input"
+      name="cmd"
+      spellcheck="false"
+      aria-label="Comando de la shell"
+      placeholder="help · play · ` expand"
+    />
+    <kbd class="term-dock__kbd" title="Atajo">`</kbd>
   </form>
-</div>
+</aside>
 
 <script>
   import { bootTerminal } from '../scripts/terminal';
