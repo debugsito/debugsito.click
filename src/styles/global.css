@@ -716,18 +716,20 @@ a:hover {
 .term-dock__form {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem 0.7rem;
-  background: #0d1014;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  background: #0a0e12;
+  border-top: 1px solid #1e3a44;
 }
 
 .term-dock__grip {
   appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border: none;
-  background: transparent;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #2a6f7a;
+  background: #123640;
   color: #4ecfe3;
   font: inherit;
   cursor: pointer;
@@ -736,41 +738,78 @@ a:hover {
 }
 
 .term-dock__grip:hover {
-  color: #3dba8a;
+  background: #1a4a55;
+  border-color: #4ecfe3;
 }
 
-.term-dock__label {
-  color: #8b929a;
-  font-size: 0.72rem;
-  text-transform: lowercase;
+.term-dock__grip:focus-visible {
+  outline: 2px solid #4ecfe3;
+  outline-offset: 2px;
 }
 
 .term-dock__prompt {
   color: #4ecfe3;
-  font-weight: 500;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.term-dock__field {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  background: #12181f;
+  border: 1px solid #2c333d;
+  padding: 0.35rem 0.65rem;
+}
+
+.term-dock__field:focus-within {
+  border-color: #4ecfe3;
+  background: #0f151c;
 }
 
 .term-dock__form input {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
   background: transparent;
   border: none;
-  color: inherit;
+  color: #f2f4f6;
   font: inherit;
+  font-weight: 500;
+  caret-color: #4ecfe3;
   outline: none;
 }
 
 .term-dock__form input::placeholder {
-  color: #9aa0a8;
+  color: #8b929a;
+  font-weight: 400;
+  font-style: italic;
+  opacity: 1;
 }
 
-.term-dock__kbd {
-  font: inherit;
-  font-size: 0.72rem;
+.term-dock__hint {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-style: italic;
   color: #8b929a;
-  border: 1px solid #2c333d;
-  padding: 0.1rem 0.35rem;
-  background: #1a1f27;
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+.term-dock__form:focus-within .term-dock__hint,
+.term-dock__form:has(input:not(:placeholder-shown)) .term-dock__hint {
+  opacity: 0.35;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (max-width: 720px) {
@@ -779,8 +818,7 @@ a:hover {
     border-inline: none;
   }
 
-  .term-dock__label,
-  .term-dock__kbd {
+  .term-dock__hint {
     display: none;
   }
 }

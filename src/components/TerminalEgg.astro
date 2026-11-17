@@ -31,16 +31,18 @@
       title="Expandir o minimizar historial"
     >
       <span class="term-dock__prompt" aria-hidden="true">$</span>
-      <span class="term-dock__label">shell</span>
     </button>
-    <input
-      id="term-input"
-      name="cmd"
-      spellcheck="false"
-      aria-label="Comando de la shell"
-      placeholder="help · play · ` expand"
-    />
-    <kbd class="term-dock__kbd" title="Atajo">`</kbd>
+    <label class="term-dock__field">
+      <span class="visually-hidden">Comando</span>
+      <input
+        id="term-input"
+        name="cmd"
+        spellcheck="false"
+        aria-label="Comando de la shell"
+        placeholder="escribe un comando…"
+      />
+    </label>
+    <span class="term-dock__hint" aria-hidden="true">help · play · `</span>
   </form>
 </aside>
 
