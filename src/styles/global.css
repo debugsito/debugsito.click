@@ -653,22 +653,24 @@ a:hover {
   flex-direction: column;
   justify-content: flex-end;
   width: 100%;
-  max-width: min(44rem, 100%);
+  max-width: min(36rem, calc(100% - 1.5rem));
   margin-inline: auto;
   left: 50%;
   translate: -50% 0;
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #d7dbdf;
   color-scheme: dark;
-  background: #0d1014;
-  border: 1px solid #2a6f7a;
+  background: color-mix(in srgb, #0d1014 92%, transparent);
+  border: 1px solid #243038;
   border-bottom: none;
-  box-shadow: 0 -10px 32px rgb(0 0 0 / 35%);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -4px 18px rgb(0 0 0 / 18%);
 }
 
 .term-dock.is-expanded {
-  max-height: min(42vh, 22rem);
+  max-height: min(38vh, 20rem);
+  background: #0d1014;
 }
 
 .term-dock__panel {
@@ -716,20 +718,20 @@ a:hover {
 .term-dock__form {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.5rem 0.65rem;
-  background: #0a0e12;
-  border-top: 1px solid #1e3a44;
+  gap: 0.45rem;
+  padding: 0.4rem 0.55rem;
+  background: transparent;
+  border-top: 1px solid #1c262c;
 }
 
 .term-dock__grip {
   appearance: none;
   display: inline-grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid #2a6f7a;
-  background: #123640;
+  width: 1.65rem;
+  height: 1.65rem;
+  border: none;
+  background: transparent;
   color: #4ecfe3;
   font: inherit;
   cursor: pointer;
@@ -738,8 +740,7 @@ a:hover {
 }
 
 .term-dock__grip:hover {
-  background: #1a4a55;
-  border-color: #4ecfe3;
+  color: #7adced;
 }
 
 .term-dock__grip:focus-visible {
@@ -748,8 +749,8 @@ a:hover {
 }
 
 .term-dock__prompt {
-  color: #4ecfe3;
-  font-size: 1.05rem;
+  color: inherit;
+  font-size: 0.95rem;
   font-weight: 600;
   line-height: 1;
 }
@@ -758,14 +759,14 @@ a:hover {
   flex: 1;
   min-width: 0;
   display: block;
-  background: #12181f;
-  border: 1px solid #2c333d;
-  padding: 0.35rem 0.65rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 0.2rem 0.15rem;
 }
 
 .term-dock__field:focus-within {
-  border-color: #4ecfe3;
-  background: #0f151c;
+  border-bottom-color: #2a6f7a;
 }
 
 .term-dock__form input {

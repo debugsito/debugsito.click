@@ -2,9 +2,9 @@
 title: Changelog del sitio
 ---
 
-## 2026-11-17 — shell siempre abajo
+## 2026-11-17 — shell en dock
 
-- Dock fijo con prompt siempre usable; expandir para historial.
+- Prompt discreto abajo; historial al expandir.
 - Persiste entre páginas (`transition:persist` + sessionStorage).
 
 ## 2026-11-17 — jugable + filtros

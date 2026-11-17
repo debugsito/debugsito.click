@@ -37,7 +37,7 @@ export function bootTerminal() {
       /* ignore */
     }
     if (open && !out.textContent) {
-      out.textContent = 'shell lista · siempre abajo · help · play\n';
+      out.textContent = 'ready · help\n';
     }
     if (open) {
       out.scrollTop = out.scrollHeight;
